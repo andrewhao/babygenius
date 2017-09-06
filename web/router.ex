@@ -24,9 +24,9 @@ defmodule Babygenius.Router do
   end
 
   # Other scopes may use custom stacks.
-   scope "/api", Babygenius dk
-     pipe_through :api
+  scope "/api", Babygenius do
+    pipe_through :api
 
-     post "/", AlexaController, :command
-   end
+    post "/command", AlexaController, :command
+  end
 end
