@@ -28,7 +28,7 @@ defmodule Babygenius.Endpoint do
   plug Plug.Logger
 
   plug Plug.Parsers,
-    parsers: [:urlencoded, :multipart, :json],
+    parsers: [:alexajson, :urlencoded, :multipart, :json],
     pass: ["*/*"],
     json_decoder: Poison
 
