@@ -22,7 +22,7 @@ defmodule Babygenius.Mixfile do
   def application do
     [mod: {Babygenius, []},
      applications: [:phoenix, :phoenix_pubsub, :phoenix_html, :cowboy, :logger, :gettext,
-                    :phoenix_ecto, :postgrex]]
+                    :phoenix_ecto, :postgrex, :alexa]]
   end
 
   # Specifies which paths to compile per environment.
@@ -45,6 +45,8 @@ defmodule Babygenius.Mixfile do
       {:phoenix_slime, "~> 0.8.0"},
       {:wallaby, "~> 0.14.0", only: :test},
       {:ex_machina, "~> 1.0", only: :test},
+      {:phoenix_alexa, "~> 0.2.0"},
+      {:less_verifies_alexa, "~> 0.1.0"},
    ]
   end
 
