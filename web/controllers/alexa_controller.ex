@@ -8,4 +8,11 @@ defmodule Babygenius.AlexaController do
 
     conn |> set_response(response)
   end
+
+  def intent_request(conn, "AddDiaperChange", request) do
+    response = %Response{}
+    |> set_output_speech(%TextOutputSpeech{text: ""})
+    |> set_should_end_session(true)
+    conn |> set_response(response)
+  end
 end
