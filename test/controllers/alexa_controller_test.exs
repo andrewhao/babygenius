@@ -1,5 +1,6 @@
 defmodule Babygenius.UserControllerTest do
   use Babygenius.ConnCase, async: true
+  use Babygenius.Web, :model
 
   describe "intent_request/3" do
     setup do
@@ -77,8 +78,10 @@ defmodule Babygenius.UserControllerTest do
     end
 
     test "adds a DiaperChange record into the DB", context do
-      
+      old_count = Repo.aggregate(DiaperChange, :count, :id)
       response = context[:response] |> json_response(200)
+      new_count = Repo.aggregate(DiaperChange, :count, :id)
+      assert old_count == new_count - 1
     end
   end
 
