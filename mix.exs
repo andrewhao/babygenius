@@ -22,7 +22,7 @@ defmodule Babygenius.Mixfile do
   def application do
     [mod: {Babygenius, []},
      applications: [:phoenix, :phoenix_pubsub, :phoenix_html, :cowboy, :logger, :gettext,
-                    :phoenix_ecto, :postgrex]]
+                    :phoenix_ecto, :postgrex, :timex_ecto]]
   end
 
   # Specifies which paths to compile per environment.
@@ -43,6 +43,11 @@ defmodule Babygenius.Mixfile do
       {:gettext, "~> 0.11"},
       {:cowboy, "~> 1.0"},
       {:phoenix_slime, "~> 0.8.0"},
+      {:timex, "~> 3.0"},
+      {:timex_ecto, "~> 3.0"},
+      # Forced up to make this work with weird timex -> hackney -> idna dependency graph.
+      # Remove this or upgrade if upgrading Timex allows us to upgrade hackney.
+      {:hackney, "~> 1.6.5"},
       {:wallaby, "~> 0.14.0", only: :test},
       {:ex_machina, "~> 1.0", only: :test},
       {:phoenix_alexa, "~> 0.2.0"},

@@ -3,7 +3,7 @@ defmodule Babygenius.DiaperChange do
 
   schema "diaper_changes" do
     field :type, :string
-    field :occurred_at, :naive_datetime
+    field :occurred_at, Timex.Ecto.DateTime
 
     belongs_to :user, Babygenius.User
 
