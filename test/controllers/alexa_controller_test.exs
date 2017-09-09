@@ -1,5 +1,133 @@
-defmodule Babygenius.UserControllerTest do
+defmodule Babygenius.AlexaControllerTest do
   use Babygenius.ConnCase, async: true
+  use Babygenius.Web, :model
+  use Timex
+  alias Babygenius.{User, DiaperChange}
+
+  describe "intent_request/3" do
+    setup do
+      json = """
+{
+  "session": {
+    "new": false,
+    "sessionId": "SessionId.adb3cd0a-f4fd-46be-acfb-d490b3a9b2d6",
+    "application": {
+      "applicationId": "amzn1.ask.skill.1175338a-99af-4093-80ab-3e9922f183f7"
+    },
+    "attributes": {},
+    "user": {
+      "userId": "amzn1.ask.account.AFBXXFOBZCPX4X7Y42SGPWDWBBUTB56PB2NPD4WLYA7JWSWMDQTVMUI6UA2KZTVT3QJT5CRV7Q3GZVXZQ3VC56IFBG32V5VDMAENXGIZF7QOPI6MRHK3JJHAZS5MWGR3WELRUEIZVRLEPNV6HJLUMJBSOEPOTVER2KHLXZIY27EAAEP5QQSZSLAC6R2DFLR65WXN6E3S6RH4VFY"
+    }
+  },
+  "request": {
+    "type": "IntentRequest",
+    "requestId": "EdwRequestId.f7639b89-fa9b-45cc-8a1b-75da66ee3c8e",
+    "intent": {
+      "name": "AddDiaperChange",
+      "slots": {
+        "diaperChangeDate": {
+          "name": "diaperChangeDate",
+          "value": "2017-09-08"
+        },
+        "diaperChangeTime": {
+          "name": "diaperChangeTime",
+          "value": "03:00"
+        },
+        "logAction": {
+          "name": "logAction",
+          "value": "log"
+        },
+        "diaperType": {
+          "name": "diaperType",
+          "value": "wet"
+        }
+      }
+    },
+    "locale": "en-US",
+    "timestamp": "2017-09-08T01:15:02Z"
+  },
+  "context": {
+    "AudioPlayer": {
+      "playerActivity": "IDLE"
+    },
+    "System": {
+      "application": {
+        "applicationId": "amzn1.ask.skill.1175338a-99af-4093-80ab-3e9922f183f7"
+      },
+      "user": {
+        "userId": "amzn1.ask.account.AFBXXFOBZCPX4X7Y42SGPWDWBBUTB56PB2NPD4WLYA7JWSWMDQTVMUI6UA2KZTVT3QJT5CRV7Q3GZVXZQ3VC56IFBG32V5VDMAENXGIZF7QOPI6MRHK3JJHAZS5MWGR3WELRUEIZVRLEPNV6HJLUMJBSOEPOTVER2KHLXZIY27EAAEP5QQSZSLAC6R2DFLR65WXN6E3S6RH4VFY"
+      },
+      "device": {
+        "supportedInterfaces": {}
+      }
+    }
+  },
+  "version": "1.0"
+}
+"""
+
+      request = build_conn()
+			|> put_req_header("accept", "application/json")
+			|> put_req_header("content-type", "application/json")
+
+      {:ok, request: request, json: json}
+    end
+
+    test "responds with shouldEndSession true", context do
+      response = context[:request]
+                  |> post(alexa_path(build_conn(), :command), context[:json])
+                  |> json_response(200)
+      assert response["response"]["shouldEndSession"] == true
+    end
+
+    test "adds a DiaperChange record into the DB", context do
+      old_count = Repo.aggregate(from(dc in "diaper_changes"), :count, :id)
+      context[:request]
+      |> post(alexa_path(build_conn(), :command), context[:json])
+      |> json_response(200)
+      new_count = Repo.aggregate(from(dc in "diaper_changes"), :count, :id)
+      assert old_count == new_count - 1
+    end
+
+    test "it creates a new user if one does not already exist", context do
+      old_count = Repo.aggregate(from(dc in "users"), :count, :id)
+      context[:request]
+      |> post(alexa_path(build_conn(), :command), context[:json])
+      |> json_response(200)
+      new_count = Repo.aggregate(from(dc in "users"), :count, :id)
+      assert old_count == new_count - 1
+    end
+
+    test "it does not create a new user if one already exists", context do
+      %User{amazon_id: "amzn1.ask.account.AFBXXFOBZCPX4X7Y42SGPWDWBBUTB56PB2NPD4WLYA7JWSWMDQTVMUI6UA2KZTVT3QJT5CRV7Q3GZVXZQ3VC56IFBG32V5VDMAENXGIZF7QOPI6MRHK3JJHAZS5MWGR3WELRUEIZVRLEPNV6HJLUMJBSOEPOTVER2KHLXZIY27EAAEP5QQSZSLAC6R2DFLR65WXN6E3S6RH4VFY"}
+      |> Repo.insert!
+      old_count = Repo.aggregate(from(dc in "users"), :count, :id)
+      context[:request]
+      |> post(alexa_path(build_conn(), :command), context[:json])
+      |> json_response(200)
+      new_count = Repo.aggregate(from(dc in "users"), :count, :id)
+      assert old_count == new_count
+    end
+
+    test "logs a DiaperChange with the right type", context do
+      _response = context[:request]
+                  |> post(alexa_path(build_conn(), :command), context[:json])
+                  |> json_response(200)
+
+      type = DiaperChange |> last |> Repo.one |> Map.fetch!(:type)
+
+      assert type == "wet"
+    end
+
+    test "it responds with confirmation text", context do
+      response = context[:request]
+                  |> post(alexa_path(build_conn(), :command), context[:json])
+                  |> json_response(200)
+      DiaperChange |> last |> Repo.one |> Map.fetch!(:occurred_at)
+
+      assert get_in(response, ["response", "outputSpeech", "text"]) == "A wet diaper change was logged now"
+    end
+  end
 
   describe "launch_request/2" do
     test "responds with initial launch text" do
