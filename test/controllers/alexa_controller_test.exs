@@ -1,7 +1,8 @@
-defmodule Babygenius.UserControllerTest do
+defmodule Babygenius.AlexaControllerTest do
   use Babygenius.ConnCase, async: true
   use Babygenius.Web, :model
   use Timex
+  alias Babygenius.{User, DiaperChange}
 
   describe "intent_request/3" do
     setup do
@@ -88,12 +89,32 @@ defmodule Babygenius.UserControllerTest do
       assert old_count == new_count - 1
     end
 
+    test "it creates a new user if one does not already exist", context do
+      old_count = Repo.aggregate(from(dc in "users"), :count, :id)
+      context[:request]
+      |> post(alexa_path(build_conn(), :command), context[:json])
+      |> json_response(200)
+      new_count = Repo.aggregate(from(dc in "users"), :count, :id)
+      assert old_count == new_count - 1
+    end
+
+    test "it does not create a new user if one already exists", context do
+      %User{amazon_id: "amzn1.ask.account.AFBXXFOBZCPX4X7Y42SGPWDWBBUTB56PB2NPD4WLYA7JWSWMDQTVMUI6UA2KZTVT3QJT5CRV7Q3GZVXZQ3VC56IFBG32V5VDMAENXGIZF7QOPI6MRHK3JJHAZS5MWGR3WELRUEIZVRLEPNV6HJLUMJBSOEPOTVER2KHLXZIY27EAAEP5QQSZSLAC6R2DFLR65WXN6E3S6RH4VFY"}
+      |> Repo.insert!
+      old_count = Repo.aggregate(from(dc in "users"), :count, :id)
+      context[:request]
+      |> post(alexa_path(build_conn(), :command), context[:json])
+      |> json_response(200)
+      new_count = Repo.aggregate(from(dc in "users"), :count, :id)
+      assert old_count == new_count
+    end
+
     test "logs a DiaperChange with the right type", context do
       _response = context[:request]
                   |> post(alexa_path(build_conn(), :command), context[:json])
                   |> json_response(200)
 
-      type = Babygenius.DiaperChange |> last |> Repo.one |> Map.fetch!(:type)
+      type = DiaperChange |> last |> Repo.one |> Map.fetch!(:type)
 
       assert type == "wet"
     end
@@ -102,7 +123,7 @@ defmodule Babygenius.UserControllerTest do
       response = context[:request]
                   |> post(alexa_path(build_conn(), :command), context[:json])
                   |> json_response(200)
-      Babygenius.DiaperChange |> last |> Repo.one |> Map.fetch!(:occurred_at)
+      DiaperChange |> last |> Repo.one |> Map.fetch!(:occurred_at)
 
       assert get_in(response, ["response", "outputSpeech", "text"]) == "A wet diaper change was logged now"
     end

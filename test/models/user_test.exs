@@ -21,8 +21,8 @@ defmodule Babygenius.UserTest do
     |> Repo.insert!
     occurred_at = NaiveDateTime.utc_now()
 
-    diaper_changes_changeset = Ecto.build_assoc(user, :diaper_changes, occurred_at: occurred_at)
-                                |> Repo.insert!
+    Ecto.build_assoc(user, :diaper_changes, occurred_at: occurred_at)
+    |> Repo.insert!
 
     assert user.amazon_id == "some content"
   end
