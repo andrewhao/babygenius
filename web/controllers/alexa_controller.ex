@@ -3,7 +3,7 @@ defmodule Babygenius.AlexaController do
   use PhoenixAlexa.Controller, :command
   use Timex
 
-  alias Babygenius.DiaperChange
+  alias Babygenius.{IntentHandler}
 
   def launch_request(conn, _request) do
     response = %Response{}
@@ -13,24 +13,11 @@ defmodule Babygenius.AlexaController do
   end
 
   def intent_request(conn, "AddDiaperChange", request) do
-    user_amazon_id = request.session.user.userId
-    slots = request.request.intent.slots
-    diaper_type = get_in(slots, ["diaperType", "value"])
-    occurred_at = Timex.now()
-
-    user = %Babygenius.User{amazon_id: user_amazon_id} |> Babygenius.User.find_or_create_by_amazon_id()
-    %DiaperChange{
-      user_id: user.id,
-      type: diaper_type,
-      occurred_at: occurred_at
-    }
-    |> Repo.insert!
-
-    speak_time = Timex.now() |> Timex.format!("{relative}", :relative)
+    intent_handler_response = IntentHandler.handle_intent("AddDiaperChange", request)
 
     response = %Response{}
-    |> set_output_speech(%TextOutputSpeech{text: "A #{diaper_type} diaper change was logged #{speak_time}"})
-    |> set_should_end_session(true)
+    |> set_output_speech(%TextOutputSpeech{text: intent_handler_response.speak_text})
+    |> set_should_end_session(intent_handler_response.should_end_session)
 
     conn |> set_response(response)
   end
