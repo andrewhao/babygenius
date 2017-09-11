@@ -125,7 +125,7 @@ defmodule Babygenius.AlexaControllerTest do
                   |> json_response(200)
       DiaperChange |> last |> Repo.one |> Map.fetch!(:occurred_at)
 
-      assert get_in(response, ["response", "outputSpeech", "text"]) == "A wet diaper change was logged now"
+      assert get_in(response, ["response", "outputSpeech", "text"]) == "A wet diaper change was logged September 8th at 3:00 AM"
     end
   end
 
