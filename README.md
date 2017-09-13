@@ -15,16 +15,6 @@ A convenience skeleton project for Phoenix.
 * ready for deployment to Heroku Pipelines in `acceptance` and `prod` environments.  
 
 ## Getting started
-After you've cloned the app, perform global replacements for these with your app name:
-  * `Babygenius`
-  * `babygenius`
-  * `babygenius`
-  * `Babygenius`
-
-Also rename the following directories & files:
-  * `/lib/babygenius`
-  * `/web/static/css/_babygenius.scss`
-  * `/web/static/js/babygenius.js`
 
 Now you can finish your setup & verify things are working:
   * `mix deps.get`
