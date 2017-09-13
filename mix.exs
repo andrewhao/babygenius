@@ -52,6 +52,7 @@ defmodule Babygenius.Mixfile do
       {:ex_machina, "~> 1.0", only: :test},
       {:phoenix_alexa, "~> 0.2.0"},
       {:less_verifies_alexa, "~> 0.1.0"},
+      {:credo, "~> 0.8", only: [:dev, :test], runtime: false},
    ]
   end
 
