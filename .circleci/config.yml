@@ -39,3 +39,4 @@ jobs:
       - run: yarn
       - run: brunch build
       - run: mix test
+      - run: echo $ALEXA_APPLICATION_ID
