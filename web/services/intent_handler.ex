@@ -1,4 +1,7 @@
 defmodule Babygenius.IntentHandler do
+  @moduledoc """
+    Service module to handle incoming intents from Alexa Skills Kit
+  """
   use Timex
   alias Babygenius.{User, DiaperChange, Repo}
   use Babygenius.Web, :model
@@ -27,12 +30,13 @@ defmodule Babygenius.IntentHandler do
   end
 
   defp formatted_time(datetime) do
-    speak_date = cond do
-      Timex.now().day == datetime.day -> "today"
-      true ->
-        day = datetime.day
-        "#{Timex.format!(datetime, "%B", :strftime)} #{day}#{ordinal(day)}"
+    speak_date = if Timex.now().day == datetime.day do
+      "today"
+    else
+      day = datetime.day
+      "#{Timex.format!(datetime, "%B", :strftime)} #{day}#{ordinal(day)}"
     end
+
     speak_time = datetime |> Timex.format!("%-I:%M %p", :strftime)
 
     "#{speak_date} at #{speak_time}"

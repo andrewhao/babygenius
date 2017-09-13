@@ -1,4 +1,8 @@
 defmodule Babygenius.User do
+  @moduledoc """
+  DB representation of a user from Alexa
+  """
+
   use Babygenius.Web, :model
 
   schema "users" do
