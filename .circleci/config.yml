@@ -40,3 +40,4 @@ jobs:
       - run: brunch build
       - run: mix test
       - run: echo $ALEXA_APPLICATION_ID
+      - run: ./test/integration/test_skills_kit.sh
