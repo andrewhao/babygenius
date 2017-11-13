@@ -12,8 +12,8 @@ defmodule Babygenius.AlexaController do
     conn |> set_response(response)
   end
 
-  def intent_request(conn, "AddDiaperChange", request) do
-    intent_handler_response = IntentHandler.handle_intent("AddDiaperChange", request)
+  def intent_request(conn, intent_name, request) do
+    intent_handler_response = IntentHandler.handle_intent(intent_name, request)
 
     response = %Response{}
     |> set_output_speech(%TextOutputSpeech{text: intent_handler_response.speak_text})
