@@ -3,7 +3,7 @@ defmodule Babygenius.UserTest do
 
   alias Babygenius.User
 
-  @valid_attrs %{amazon_id: "some content"}
+  @valid_attrs %{amazon_id: "some content", timezone_identifier: "America/Los_Angeles", device_id: "asdf"}
   @invalid_attrs %{}
 
   test "changeset with valid attributes" do

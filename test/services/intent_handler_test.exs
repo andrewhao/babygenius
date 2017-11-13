@@ -2,7 +2,7 @@ defmodule Babygenius.IntentHandlerTest do
   use Babygenius.ModelCase
   use Timex
   import Babygenius.Factory
-  alias Babygenius.{User, DiaperChange, IntentHandler}
+  alias Babygenius.{DiaperChange, IntentHandler}
 
   describe "handle_intent/3 for GetLastDiaperChange" do
     setup do
@@ -31,7 +31,7 @@ defmodule Babygenius.IntentHandlerTest do
 
     test "it reports a DiaperChange", context do
       now = Timex.now() |> Timex.set([hour: 7, minute: 12])
-      diaper_change = insert(:diaper_change, occurred_at: now, user: context.user)
+      insert(:diaper_change, occurred_at: now, user: context.user)
       response = IntentHandler.handle_intent("GetLastDiaperChange", context.request)
       assert response.speak_text == "The last diaper change occurred today at 7:12 AM"
     end

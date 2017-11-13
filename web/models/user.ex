@@ -7,6 +7,9 @@ defmodule Babygenius.User do
 
   schema "users" do
     field :amazon_id, :string
+    field :timezone_identifier, :string
+    field :device_id, :string
+    field :consent_token, :string
 
     has_many :diaper_changes, Babygenius.DiaperChange
     timestamps()
@@ -17,8 +20,8 @@ defmodule Babygenius.User do
   """
   def changeset(struct, params \\ %{}) do
     struct
-    |> cast(params, [:amazon_id])
-    |> validate_required([:amazon_id])
+    |> cast(params, [:amazon_id, :timezone_identifier, :device_id, :consent_token])
+    |> validate_required([:amazon_id, :timezone_identifier])
   end
 
   def find_or_create_by_amazon_id(user) do
