@@ -37,6 +37,7 @@ defmodule Babygenius.Mixfile do
       {:phoenix, "~> 1.2.1"},
       {:phoenix_pubsub, "~> 1.0"},
       {:phoenix_ecto, "~> 3.0"},
+      {:apex, "~>1.1.0", only: [:dev, :test]},
       {:postgrex, ">= 0.0.0"},
       {:phoenix_html, "~> 2.6"},
       {:phoenix_live_reload, "~> 1.0", only: :dev},
@@ -50,7 +51,7 @@ defmodule Babygenius.Mixfile do
       {:hackney, "~> 1.6.5"},
       {:wallaby, "~> 0.14.0", only: :test},
       {:ex_machina, "~> 1.0", only: :test},
-      {:phoenix_alexa, "~> 0.2.0"},
+      {:phoenix_alexa, "~> 0.2.0", github: "andrewhao/phoenix_alexa"},
       {:less_verifies_alexa, "~> 0.1.0"},
       {:credo, "~> 0.8", only: [:dev, :test], runtime: false},
    ]
