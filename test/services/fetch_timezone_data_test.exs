@@ -6,7 +6,8 @@ defmodule Babygenius.FetchTimezoneDataTest do
   describe "perform/1" do
     test "queries the Device Address API" do
       mock_response = %{"status" => "ok"}
-      FetchTimezoneData.perform(fn -> mock_response)
+      api_fn = fn(url) -> mock_response
+      FetchTimezoneData.perform(device_id, consent_token, api_fn)
     end
   end
 end
