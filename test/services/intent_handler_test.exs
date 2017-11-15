@@ -87,7 +87,7 @@ defmodule Babygenius.IntentHandlerTest do
       current_time = Timex.now()
       IntentHandler.handle_intent("AddDiaperChange", context.request, current_time)
       diaper_change = DiaperChange |> last |> Repo.one
-      assert diaper_change.occurred_at == current_time
+      assert diaper_change.occurred_at |> Map.put(:microseconds, 0) == current_time |> Map.put(:microseconds, 0)
     end
 
     test "it uses provided date if one is given", context do
