@@ -18,7 +18,7 @@ defmodule Babygenius.IntentHandler do
   defp handle_intent_get_last_diaper_change(request, _now) do
     user_amazon_id = request.session.user.userId
     user = Repo.get_by!(User, amazon_id: user_amazon_id)
-    diaper_change = from(d in DiaperChange, where: d.user_id == ^user.id) |> last |> Repo.one
+    diaper_change = from(d in DiaperChange, where: d.user_id == ^user.id, order_by: d.occurred_at) |> last |> Repo.one
     speak_text = case diaper_change do
       nil ->
         "You have not logged any diaper changes yet"
@@ -30,7 +30,8 @@ defmodule Babygenius.IntentHandler do
   end
 
   defp formatted_time(datetime) do
-    speak_date = if Timex.now().day == datetime.day do
+    now = Timex.now()
+    speak_date = if now.day == datetime.day && now.month == datetime.month do
       "today"
     else
       day = datetime.day
