@@ -10,6 +10,7 @@ defmodule Babygenius.User do
     field :timezone_identifier, :string
     field :device_id, :string
     field :consent_token, :string
+    field :zip_code, :string
 
     has_many :diaper_changes, Babygenius.DiaperChange
     timestamps()
@@ -20,7 +21,7 @@ defmodule Babygenius.User do
   """
   def changeset(struct, params \\ %{}) do
     struct
-    |> cast(params, [:amazon_id, :timezone_identifier, :device_id, :consent_token])
+    |> cast(params, [:amazon_id, :timezone_identifier, :device_id, :consent_token, :zip_code])
     |> validate_required([:amazon_id, :timezone_identifier])
   end
 

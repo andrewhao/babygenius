@@ -11,3 +11,8 @@ Application.put_env(:wallaby, :base_url, Babygenius.Endpoint.url)
 
 # ExMachina
 {:ok, _} = Application.ensure_all_started(:ex_machina)
+
+# Mox
+Mox.defmock(Babygenius.AmazonDeviceService.Mock, for: Babygenius.AmazonDeviceService)
+
+{:ok, _} = Application.ensure_all_started(:mox)
