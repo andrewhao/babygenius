@@ -22,6 +22,8 @@ defmodule Babygenius.FetchTimezoneDataTest do
       {:ok, result} = FetchTimezoneData.perform(user.id, device_id, consent_token)
       assert result.id == user.id
       assert result.zip_code == expected_zip_code
+      assert result.consent_token == consent_token
+      assert result.device_id == device_id
     end
   end
 end

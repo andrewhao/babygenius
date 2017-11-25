@@ -8,7 +8,9 @@ defmodule Babygenius.FetchTimezoneData do
 
     updated_user = User
                    |> Repo.get!(user_id)
-                   |> User.changeset(%{zip_code: zip_code})
+                   |> User.changeset(%{zip_code: zip_code,
+                                       consent_token: consent_token,
+                                       device_id: device_id})
                    |> Repo.update!
     {:ok, updated_user}
   end
