@@ -3,7 +3,7 @@ defmodule Babygenius.IntentHandler do
     Service module to handle incoming intents from Alexa Skills Kit
   """
   use Timex
-  alias Babygenius.{User, DiaperChange, Repo}
+  alias Babygenius.{User, DiaperChange, Repo, FetchTimezoneData}
   use Babygenius.Web, :model
 
   def handle_intent(intent_name, request, now \\ Timex.now()) do
@@ -18,6 +18,9 @@ defmodule Babygenius.IntentHandler do
   defp handle_intent_get_last_diaper_change(request, _now) do
     user_amazon_id = request.session.user.userId
     user = Repo.get_by!(User, amazon_id: user_amazon_id)
+
+    FetchTimezoneData.perform(user.id, request)
+
     diaper_change = from(d in DiaperChange, where: d.user_id == ^user.id, order_by: d.occurred_at) |> last |> Repo.one
     speak_text = case diaper_change do
       nil ->
@@ -66,6 +69,11 @@ defmodule Babygenius.IntentHandler do
     %DiaperChange{user_id: user.id, type: diaper_type, occurred_at: diaper_change_time} |> Repo.insert!
 
     speak_text = "A #{diaper_type} diaper change was logged #{formatted_time(diaper_change_time)}"
+
+
+
+    FetchTimezoneData.perform(user.id, request)
+
 
     %{speak_text: speak_text, should_end_session: true}
   end

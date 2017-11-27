@@ -2,6 +2,21 @@ defmodule Babygenius.FetchTimezoneData do
   alias Babygenius.{User, Repo}
   @amazon_device_service Application.get_env(:babygenius, :amazon_device_service)
 
+  def perform(user_id, request) do
+    %{
+      context: %{
+        System: %{
+          device: %{ deviceId: device_id },
+          user: %{
+            permissions: %{
+              consentToken: consent_token }
+          }
+        }
+      }
+    } = request
+    perform(user_id, device_id, consent_token)
+  end
+
   def perform(user_id, device_id, consent_token) do
     zip_code = @amazon_device_service.country_and_zip_code(device_id, consent_token)
                |> Map.get("postalCode")
