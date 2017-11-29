@@ -2,10 +2,18 @@ defmodule Babygenius.AlexaControllerTest do
   use Babygenius.ConnCase, async: true
   use Babygenius.Web, :model
   use Timex
+
+  import Mox
+
   alias Babygenius.{User, DiaperChange}
 
   describe "intent_request/3" do
     setup do
+
+      zip_code = "94110"
+      Babygenius.AmazonDeviceService.Mock
+      |> expect(:country_and_zip_code, fn(_device, _consent) -> %{"postalCode" => zip_code} end)
+
       json = """
 {
   "session": {
@@ -46,20 +54,20 @@ defmodule Babygenius.AlexaControllerTest do
     "locale": "en-US",
     "timestamp": "2017-09-08T01:15:02Z"
   },
-  "context": {
-    "AudioPlayer": {
-      "playerActivity": "IDLE"
-    },
+  "context": {"AudioPlayer": {"playerActivity": "IDLE"},
     "System": {
-      "application": {
-        "applicationId": "amzn1.ask.skill.1175338a-99af-4093-80ab-3e9922f183f7"
+      "apiAccessToken": "eyJ0e",
+      "apiEndpoint": "https://api.amazonalexa.com",
+      "application": {"applicationId": "amzn1.ask.skill.1175338a-99af-4093-80ab-3e9922f183f7"},
+      "device": {
+        "deviceId": "amzn1.ask.device.AH6U6HY6STJGU5EWAJ6PKEPWG5W6QCOQCJZ7JCL6O5R7TQVXOMVM6YDYK6PXXBD6PEGO3NXGPICDRERSICU65VRZZAMAWBETLA6B4O2RV23K6G6EMMUAWLSIV3ONZXNSRVU35GMGJMFWYABJWYLOQM57UMIQ",
+        "supportedInterfaces": {"AudioPlayer": {}}
       },
       "user": {
-        "userId": "amzn1.ask.account.AFBXXFOBZCPX4X7Y42SGPWDWBBUTB56PB2NPD4WLYA7JWSWMDQTVMUI6UA2KZTVT3QJT5CRV7Q3GZVXZQ3VC56IFBG32V5VDMAENXGIZF7QOPI6MRHK3JJHAZS5MWGR3WELRUEIZVRLEPNV6HJLUMJBSOEPOTVER2KHLXZIY27EAAEP5QQSZSLAC6R2DFLR65WXN6E3S6RH4VFY"
-      },
-      "device": {
-        "supportedInterfaces": {}
-      }
+        "permissions": {
+          "consentToken": "eyJ0eX"
+        },
+        "userId": "amzn1.ask.account.AFBXXFOBZCPX4X7Y42SGPWDWBBUTB56PB2NPD4WLYA7JWSWMDQTVMUI6UA2KZTVT3QJT5CRV7Q3GZVXZQ3VC56IFBG32V5VDMAENXGIZF7QOPI6MRHK3JJHAZS5MWGR3WELRUEIZVRLEPNV6HJLUMJBSOEPOTVER2KHLXZIY27EAAEP5QQSZSLAC6R2DFLR65WXN6E3S6RH4VFY"}
     }
   },
   "version": "1.0"
@@ -67,10 +75,10 @@ defmodule Babygenius.AlexaControllerTest do
 """
 
       request = build_conn()
-			|> put_req_header("accept", "application/json")
-			|> put_req_header("content-type", "application/json")
+                |> put_req_header("accept", "application/json")
+                |> put_req_header("content-type", "application/json")
 
-      {:ok, request: request, json: json}
+      {:ok, request: request, json: json, zip_code: zip_code}
     end
 
     test "responds with shouldEndSession true", context do
@@ -127,6 +135,26 @@ defmodule Babygenius.AlexaControllerTest do
 
       assert get_in(response, ["response", "outputSpeech", "text"]) == "A wet diaper change was logged September 8th at 3:00 AM"
     end
+
+    test "it looks up zip code and stores in the DB", %{request: request, json: json, zip_code: zip_code} do
+      response = request
+                 |> post(alexa_path(build_conn(), :command), json)
+                 |> json_response(200)
+
+      user = User |> last |> Repo.one
+      # assert user.timezone_identifier == "America/Los_Angeles"
+      assert user.zip_code == zip_code
+    end
+
+    @tag :skip
+    test "it looks up time zone and stores in the DB", %{request: request, json: json, zip_code: zip_code} do
+      response = request
+                 |> post(alexa_path(build_conn(), :command), json)
+                 |> json_response(200)
+
+      user = User |> last |> Repo.one
+      assert user.timezone_identifier == "America/Los_Angeles"
+    end
   end
 
   describe "launch_request/2" do
@@ -153,10 +181,10 @@ defmodule Babygenius.AlexaControllerTest do
 }
 """
       response = build_conn()
-			|> put_req_header("accept", "application/json")
-			|> put_req_header("content-type", "application/json")
-      |> post(alexa_path(build_conn(), :command), json)
-      |> json_response(200)
+                 |> put_req_header("accept", "application/json")
+                 |> put_req_header("content-type", "application/json")
+                 |> post(alexa_path(build_conn(), :command), json)
+                 |> json_response(200)
 
       assert response["response"]["outputSpeech"]["text"] == "Welcome to Babygenius. What would you like to log today? You can log a feeding, or a diaper change. For help, say Help."
       assert response["response"]["shouldEndSession"] == false

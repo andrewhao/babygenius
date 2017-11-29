@@ -11,10 +11,6 @@ defmodule Babygenius.Router do
 
   pipeline :api do
     plug :accepts, ["json"]
-
-    if Mix.env == :prod do # You don't want this to run in dev & test.
-      #plug LessVerifiesAlexa.Plug, application_id: System.get_env("ALEXA_APPLICATION_ID")
-    end
   end
 
   scope "/", Babygenius do

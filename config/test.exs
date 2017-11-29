@@ -19,3 +19,5 @@ config :babygenius, Babygenius.Repo,
   pool: Ecto.Adapters.SQL.Sandbox
 
 config :babygenius, :sql_sandbox, true
+
+config :babygenius, :amazon_device_service, Babygenius.AmazonDeviceService.Mock

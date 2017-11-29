@@ -3,7 +3,7 @@ defmodule Babygenius.IntentHandler do
     Service module to handle incoming intents from Alexa Skills Kit
   """
   use Timex
-  alias Babygenius.{User, DiaperChange, Repo}
+  alias Babygenius.{User, DiaperChange, Repo, FetchTimezoneData}
   use Babygenius.Web, :model
 
   def handle_intent(intent_name, request, now \\ Timex.now()) do
@@ -18,7 +18,10 @@ defmodule Babygenius.IntentHandler do
   defp handle_intent_get_last_diaper_change(request, _now) do
     user_amazon_id = request.session.user.userId
     user = Repo.get_by!(User, amazon_id: user_amazon_id)
-    diaper_change = from(d in DiaperChange, where: d.user_id == ^user.id) |> last |> Repo.one
+
+    {:ok, value} = FetchTimezoneData.perform(user.id, request)
+
+    diaper_change = from(d in DiaperChange, where: d.user_id == ^user.id, order_by: d.occurred_at) |> last |> Repo.one
     speak_text = case diaper_change do
       nil ->
         "You have not logged any diaper changes yet"
@@ -30,7 +33,8 @@ defmodule Babygenius.IntentHandler do
   end
 
   defp formatted_time(datetime) do
-    speak_date = if Timex.now().day == datetime.day do
+    now = Timex.now()
+    speak_date = if now.day == datetime.day && now.month == datetime.month do
       "today"
     else
       day = datetime.day
@@ -65,6 +69,11 @@ defmodule Babygenius.IntentHandler do
     %DiaperChange{user_id: user.id, type: diaper_type, occurred_at: diaper_change_time} |> Repo.insert!
 
     speak_text = "A #{diaper_type} diaper change was logged #{formatted_time(diaper_change_time)}"
+
+
+
+    {:ok, value} = FetchTimezoneData.perform(user.id, request)
+
 
     %{speak_text: speak_text, should_end_session: true}
   end

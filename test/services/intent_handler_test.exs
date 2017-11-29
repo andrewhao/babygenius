@@ -2,7 +2,14 @@ defmodule Babygenius.IntentHandlerTest do
   use Babygenius.ModelCase
   use Timex
   import Babygenius.Factory
+  import Mox
   alias Babygenius.{DiaperChange, IntentHandler}
+
+  setup do
+    Babygenius.AmazonDeviceService.Mock
+    |> expect(:country_and_zip_code, fn(_device, _consent) -> %{"postalCode" => "91111"} end)
+    {:ok, pass: "pass"}
+  end
 
   describe "handle_intent/3 for GetLastDiaperChange" do
     setup do
@@ -18,6 +25,20 @@ defmodule Babygenius.IntentHandlerTest do
           intent: %{
             slots: %{
             }
+          }
+        },
+        context: %{
+          System: %{
+            apiAccessToken: "eyJ0e",
+            application: %{applicationId: "amzn1.ask.skill.1175338a-99af-4093-80ab-3e9922f183f7"},
+            device: %{
+              deviceId: "DeviceIdValue",
+            },
+            user: %{
+              permissions: %{
+                consentToken: "ConsentTokenValue"
+              },
+              userId: "UserIdValue"}
           }
         }
       }
@@ -63,6 +84,20 @@ defmodule Babygenius.IntentHandlerTest do
               "diaperChangeTime" => %{},
               "diaperChangeDate" => %{}
             }
+          }
+        },
+        context: %{
+          System: %{
+            apiAccessToken: "eyJ0e",
+            application: %{applicationId: "amzn1.ask.skill.1175338a-99af-4093-80ab-3e9922f183f7"},
+            device: %{
+              deviceId: "DeviceIdValue",
+            },
+            user: %{
+              permissions: %{
+                consentToken: "ConsentTokenValue"
+              },
+              userId: "UserIdValue"}
           }
         }
       }
