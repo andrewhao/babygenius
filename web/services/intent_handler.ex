@@ -19,7 +19,7 @@ defmodule Babygenius.IntentHandler do
     user_amazon_id = request.session.user.userId
     user = Repo.get_by!(User, amazon_id: user_amazon_id)
 
-    FetchTimezoneData.perform(user.id, request)
+    {:ok, value} = FetchTimezoneData.perform(user.id, request)
 
     diaper_change = from(d in DiaperChange, where: d.user_id == ^user.id, order_by: d.occurred_at) |> last |> Repo.one
     speak_text = case diaper_change do
@@ -72,7 +72,7 @@ defmodule Babygenius.IntentHandler do
 
 
 
-    FetchTimezoneData.perform(user.id, request)
+    {:ok, value} = FetchTimezoneData.perform(user.id, request)
 
 
     %{speak_text: speak_text, should_end_session: true}
