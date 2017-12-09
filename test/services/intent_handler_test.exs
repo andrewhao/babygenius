@@ -46,14 +46,14 @@ defmodule Babygenius.IntentHandlerTest do
     end
 
     test "informs about no diaper changes", context do
-      response = IntentHandler.handle_intent("GetLastDiaperChange", context.request)
+      response = IntentHandler.handle_intent("GetLastDiaperChange", context.request, Timex.now())
       assert response.speak_text == "You have not logged any diaper changes yet"
     end
 
     test "it reports a DiaperChange", context do
       now = Timex.now() |> Timex.set([hour: 7, minute: 12])
       insert(:diaper_change, occurred_at: now, user: context.user)
-      response = IntentHandler.handle_intent("GetLastDiaperChange", context.request)
+      response = IntentHandler.handle_intent("GetLastDiaperChange", context.request, Timex.now())
       assert response.speak_text == "The last diaper change occurred today at 7:12 AM"
     end
 
@@ -62,7 +62,7 @@ defmodule Babygenius.IntentHandlerTest do
       time_2 = time_1 |> Timex.shift(minutes: 30)
       insert(:diaper_change, occurred_at: time_1, user: context.user)
       insert(:diaper_change, occurred_at: time_2, user: context.user)
-      response = IntentHandler.handle_intent("GetLastDiaperChange", context.request)
+      response = IntentHandler.handle_intent("GetLastDiaperChange", context.request, Timex.now())
       assert response.speak_text == "The last diaper change occurred December 25th at 12:30 PM"
     end
   end
@@ -106,14 +106,14 @@ defmodule Babygenius.IntentHandlerTest do
 
     test "it inserts a DiaperChange", context do
       old_count = Repo.aggregate(from(dc in "diaper_changes"), :count, :id)
-      IntentHandler.handle_intent("AddDiaperChange", context.request)
+      IntentHandler.handle_intent("AddDiaperChange", context.request, Timex.now())
       new_count = Repo.aggregate(from(dc in "diaper_changes"), :count, :id)
       assert new_count == old_count + 1
     end
 
     test "it creates a user if one does not exist", context do
       old_count = Repo.aggregate(from(dc in "users"), :count, :id)
-      IntentHandler.handle_intent("AddDiaperChange", context.request)
+      IntentHandler.handle_intent("AddDiaperChange", context.request, Timex.now())
       new_count = Repo.aggregate(from(dc in "users"), :count, :id)
       assert new_count == old_count + 1
     end

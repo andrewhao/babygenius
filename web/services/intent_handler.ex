@@ -6,16 +6,9 @@ defmodule Babygenius.IntentHandler do
   alias Babygenius.{User, DiaperChange, Repo, FetchTimezoneData}
   use Babygenius.Web, :model
 
-  def handle_intent(intent_name, request, now \\ Timex.now()) do
-    case intent_name do
-      "GetLastDiaperChange" ->
-        handle_intent_get_last_diaper_change(request, now)
-      "AddDiaperChange" ->
-        handle_intent_add_diaper_change(request, now)
-    end
-  end
+  def handle_intent(clause, request, now \\ Timex.now())
 
-  defp handle_intent_get_last_diaper_change(request, _now) do
+  def handle_intent("GetLastDiaperChange", request, now) do
     user_amazon_id = request.session.user.userId
     user = Repo.get_by!(User, amazon_id: user_amazon_id)
 
@@ -32,21 +25,7 @@ defmodule Babygenius.IntentHandler do
     %{speak_text: speak_text, should_end_session: true}
   end
 
-  defp formatted_time(datetime) do
-    now = Timex.now()
-    speak_date = if now.day == datetime.day && now.month == datetime.month do
-      "today"
-    else
-      day = datetime.day
-      "#{Timex.format!(datetime, "%B", :strftime)} #{day}#{ordinal(day)}"
-    end
-
-    speak_time = datetime |> Timex.format!("%-I:%M %p", :strftime)
-
-    "#{speak_date} at #{speak_time}"
-  end
-
-  defp handle_intent_add_diaper_change(request, now) do
+  def handle_intent("AddDiaperChange", request, now) do
     user_amazon_id = request.session.user.userId
     slots = request.request.intent.slots
     diaper_type = get_in(slots, ["diaperType", "value"])
@@ -70,12 +49,23 @@ defmodule Babygenius.IntentHandler do
 
     speak_text = "A #{diaper_type} diaper change was logged #{formatted_time(diaper_change_time)}"
 
-
-
     {:ok, value} = FetchTimezoneData.perform(user.id, request)
 
-
     %{speak_text: speak_text, should_end_session: true}
+  end
+
+  defp formatted_time(datetime) do
+    now = Timex.now()
+    speak_date = if now.day == datetime.day && now.month == datetime.month do
+      "today"
+    else
+      day = datetime.day
+      "#{Timex.format!(datetime, "%B", :strftime)} #{day}#{ordinal(day)}"
+    end
+
+    speak_time = datetime |> Timex.format!("%-I:%M %p", :strftime)
+
+    "#{speak_date} at #{speak_time}"
   end
 
   defp ordinal(num) do

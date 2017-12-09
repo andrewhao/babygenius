@@ -6,10 +6,11 @@ defmodule Babygenius.FetchTimezoneData do
     %{
       context: %{
         System: %{
-          device: %{ deviceId: device_id },
+          device: %{deviceId: device_id},
           user: %{
             permissions: %{
-              consentToken: consent_token }
+              consentToken: consent_token
+            }
           }
         }
       }
