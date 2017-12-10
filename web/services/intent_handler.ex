@@ -13,11 +13,11 @@ defmodule Babygenius.IntentHandler do
     user = find_or_create_user_from_request(request)
 
     with {:ok, _} <- FetchTimezoneData.perform(user.id, request) do
-      diaper_change =
-        from(d in DiaperChange, where: d.user_id == ^user.id, order_by: d.occurred_at) |> last
-        |> Repo.one()
-
-      %{speak_text: last_diaper_change_text(diaper_change), should_end_session: true}
+      from(d in DiaperChange, where: d.user_id == ^user.id, order_by: d.occurred_at)
+      |> last
+      |> Repo.one()
+      |> last_diaper_change_text
+      |> (&%{speak_text: &1, should_end_session: true}).()
     end
   end
 
@@ -46,6 +46,11 @@ defmodule Babygenius.IntentHandler do
     %User{amazon_id: user_amazon_id} |> User.find_or_create_by_amazon_id()
   end
 
+  @spec diaper_change_from_request(
+          user :: %User{},
+          request :: map(),
+          now :: DateTime.t()
+        ) :: %DiaperChange{}
   defp diaper_change_from_request(user, request, now) do
     slots = request.request.intent.slots
     diaper_type = get_in(slots, ["diaperType", "value"])
@@ -81,6 +86,7 @@ defmodule Babygenius.IntentHandler do
     %DiaperChange{user_id: user.id, type: diaper_type, occurred_at: diaper_change_time}
   end
 
+  @spec diaper_change_speech(%DiaperChange{}) :: map()
   defp diaper_change_speech(diaper_change) do
     speak_text =
       "A #{diaper_change.type} diaper change was logged #{
@@ -90,6 +96,7 @@ defmodule Babygenius.IntentHandler do
     %{speak_text: speak_text, should_end_session: true}
   end
 
+  @spec formatted_time(DateTime.t()) :: String.t()
   defp formatted_time(datetime) do
     now = Timex.now()
 
@@ -106,6 +113,7 @@ defmodule Babygenius.IntentHandler do
     "#{speak_date} at #{speak_time}"
   end
 
+  @spec ordinal(integer()) :: String.t()
   defp ordinal(num) do
     cond do
       Enum.any?([11, 12, 13], &(&1 == Integer.mod(num, 100))) ->
