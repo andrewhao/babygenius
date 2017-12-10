@@ -7,37 +7,38 @@ defmodule Babygenius.IntentHandler do
   use Babygenius.Web, :model
 
   @spec handle_intent(clause :: String.t(), request :: map(), now :: DateTime.t()) :: map()
-
   def handle_intent(clause, request, now \\ Timex.now())
 
   def handle_intent("GetLastDiaperChange", request, _now) do
     user = find_or_create_user_from_request(request)
 
-    {:ok, value} = FetchTimezoneData.perform(user.id, request)
+    with {:ok, timezone} <- FetchTimezoneData.perform(user.id, request) do
+      diaper_change =
+        from(d in DiaperChange, where: d.user_id == ^user.id, order_by: d.occurred_at) |> last
+        |> Repo.one()
 
-    diaper_change =
-      from(d in DiaperChange, where: d.user_id == ^user.id, order_by: d.occurred_at) |> last
-      |> Repo.one()
-
-    speak_text =
-      case diaper_change do
-        nil ->
-          "You have not logged any diaper changes yet"
-
-        _ ->
-          "The last diaper change occurred #{formatted_time(diaper_change.occurred_at)}"
-      end
-
-    %{speak_text: speak_text, should_end_session: true}
+      %{speak_text: last_diaper_change_text(diaper_change), should_end_session: true}
+    end
   end
 
   def handle_intent("AddDiaperChange", request, now) do
     user = find_or_create_user_from_request(request)
-    {:ok, value} = FetchTimezoneData.perform(user.id, request)
 
-    diaper_change_from_request(user, request, now)
-    |> Repo.insert!()
-    |> diaper_change_speech
+    with {:ok, timezone} <- FetchTimezoneData.perform(user.id, request) do
+      diaper_change_from_request(user, request, now)
+      |> Repo.insert!()
+      |> diaper_change_speech
+    end
+  end
+
+  @spec last_diaper_change_text(diaper_change :: nil) :: String.t()
+  defp last_diaper_change_text(nil) do
+    "You have not logged any diaper changes yet"
+  end
+
+  @spec last_diaper_change_text(diaper_change :: %DiaperChange{}) :: String.t()
+  defp last_diaper_change_text(diaper_change) do
+    "The last diaper change occurred #{formatted_time(diaper_change.occurred_at)}"
   end
 
   defp find_or_create_user_from_request(request) do
