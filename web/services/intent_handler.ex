@@ -12,7 +12,7 @@ defmodule Babygenius.IntentHandler do
   def handle_intent("GetLastDiaperChange", request, _now) do
     user = find_or_create_user_from_request(request)
 
-    with {:ok, timezone} <- FetchTimezoneData.perform(user.id, request) do
+    with {:ok, _} <- FetchTimezoneData.perform(user.id, request) do
       diaper_change =
         from(d in DiaperChange, where: d.user_id == ^user.id, order_by: d.occurred_at) |> last
         |> Repo.one()
@@ -24,7 +24,7 @@ defmodule Babygenius.IntentHandler do
   def handle_intent("AddDiaperChange", request, now) do
     user = find_or_create_user_from_request(request)
 
-    with {:ok, timezone} <- FetchTimezoneData.perform(user.id, request) do
+    with {:ok, _} <- FetchTimezoneData.perform(user.id, request) do
       diaper_change_from_request(user, request, now)
       |> Repo.insert!()
       |> diaper_change_speech
