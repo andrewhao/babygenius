@@ -9,8 +9,7 @@ defmodule Babygenius.IntentHandler do
   def handle_intent(clause, request, now \\ Timex.now())
 
   def handle_intent("GetLastDiaperChange", request, now) do
-    user_amazon_id = request.session.user.userId
-    user = Repo.get_by!(User, amazon_id: user_amazon_id)
+    user = find_or_create_user_from_request(request)
 
     {:ok, value} = FetchTimezoneData.perform(user.id, request)
 
@@ -25,8 +24,12 @@ defmodule Babygenius.IntentHandler do
     %{speak_text: speak_text, should_end_session: true}
   end
 
-  def handle_intent("AddDiaperChange", request, now) do
+  defp find_or_create_user_from_request(request) do
     user_amazon_id = request.session.user.userId
+    %User{amazon_id: user_amazon_id} |> User.find_or_create_by_amazon_id()
+  end
+
+  defp diaper_change_from_request(user, request, now) do
     slots = request.request.intent.slots
     diaper_type = get_in(slots, ["diaperType", "value"])
     fetched_diaper_change_date = get_in(slots, ["diaperChangeDate", "value"])
@@ -44,13 +47,20 @@ defmodule Babygenius.IntentHandler do
         Timex.parse!("#{diaper_change_date_formatted} #{fetched_diaper_change_time}", "%Y-%m-%d %H:%M", :strftime)
     end
 
-    user = %User{amazon_id: user_amazon_id} |> User.find_or_create_by_amazon_id()
-    %DiaperChange{user_id: user.id, type: diaper_type, occurred_at: diaper_change_time} |> Repo.insert!
+    %DiaperChange{user_id: user.id, type: diaper_type, occurred_at: diaper_change_time}
+  end
 
-    speak_text = "A #{diaper_type} diaper change was logged #{formatted_time(diaper_change_time)}"
-
+  def handle_intent("AddDiaperChange", request, now) do
+    user = find_or_create_user_from_request(request)
     {:ok, value} = FetchTimezoneData.perform(user.id, request)
 
+    diaper_change_from_request(user, request, now)
+    |> Repo.insert!
+    |> diaper_change_speech
+  end
+
+  defp diaper_change_speech(diaper_change) do
+    speak_text = "A #{diaper_change.type} diaper change was logged #{formatted_time(diaper_change.occurred_at)}"
     %{speak_text: speak_text, should_end_session: true}
   end
 
