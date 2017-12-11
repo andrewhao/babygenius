@@ -12,7 +12,13 @@ defmodule Babygenius.Locality.ZipcodeTimezoneService.HttpClient do
     |> Map.get(:body)
     |> Poison.decode!()
     |> Map.get("zipcode")
+    |> map_to_atoms
     |> (fn zip_attrs -> struct(Zipcode, zip_attrs) end).()
+  end
+
+  @spec map_to_atoms(map :: map()) :: map()
+  defp map_to_atoms(map) do
+    Enum.reduce(map, %{}, fn {key, val}, acc -> Map.put(acc, String.to_atom(key), val) end)
   end
 
   def all_zipcodes() do
@@ -22,6 +28,6 @@ defmodule Babygenius.Locality.ZipcodeTimezoneService.HttpClient do
     |> Map.get(:body)
     |> Poison.decode!()
     |> Map.get("zipcodes")
-    |> Enum.map(fn zip_attrs -> struct(Zipcode, zip_attrs) end)
+    |> Enum.map(fn zip_attrs -> struct(Zipcode, map_to_atoms(zip_attrs)) end)
   end
 end
