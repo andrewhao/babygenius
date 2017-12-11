@@ -22,6 +22,12 @@ config :logger, :console,
 config :phoenix, :template_engines, slim: PhoenixSlime.Engine
 
 config :babygenius, :amazon_device_service, BabygeniusWeb.AmazonDeviceService.HttpClient
+
+import_config "scout_apm.exs"
+
+config :babygenius, Babygenius.Repo,
+  loggers: [{Ecto.LogEntry, :log, []}, {ScoutApm.Instruments.EctoLogger, :log, []}]
+
 # Import environment specific config. This must remain at the bottom
 # of this file so it overrides the configuration defined above.
 import_config "#{Mix.env()}.exs"

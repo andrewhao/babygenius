@@ -33,7 +33,8 @@ defmodule Babygenius.Mixfile do
         :gettext,
         :phoenix_ecto,
         :postgrex,
-        :timex_ecto
+        :timex_ecto,
+        :scout_apm
       ]
     ]
   end
@@ -66,7 +67,8 @@ defmodule Babygenius.Mixfile do
       {:httpoison, "~> 0.13"},
       {:credo, "~> 0.8", only: [:dev, :test], runtime: false},
       {:dialyxir, "~> 0.5", only: [:dev], runtime: false},
-      {:mox, "~> 0.3", only: :test}
+      {:mox, "~> 0.3", only: :test},
+      {:scout_apm, "~> 0.0"}
     ]
   end
 
