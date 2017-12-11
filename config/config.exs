@@ -23,6 +23,10 @@ config :phoenix, :template_engines, slim: PhoenixSlime.Engine
 
 config :babygenius, :amazon_device_service, BabygeniusWeb.AmazonDeviceService.HttpClient
 
+config :babygenius,
+       :zipcode_timezone_service,
+       Babygenius.Locality.ZipcodeTimezoneService.HttpClient
+
 import_config "scout_apm.exs"
 
 config :babygenius, Babygenius.Repo,

@@ -8,6 +8,8 @@ defmodule Babygenius.Locality do
 
   alias Babygenius.Locality.Zipcode
 
+  @zipcode_timezone_service Application.get_env(:babygenius, :zipcode_timezone_service)
+
   @doc """
   Returns the list of zipcodes.
 
@@ -35,7 +37,7 @@ defmodule Babygenius.Locality do
   """
   @spec get_zipcode!(zip :: String.t()) :: %Zipcode{} | nil
   def get_zipcode!(zip) do
-    %Zipcode{zip: zip, timezone: "America/Los_Angeles"}
+    @zipcode_timezone_service.fetch_zipcode(zip)
   end
 
   @spec create_zipcode(attrs :: map()) :: {:ok, %Zipcode{}}

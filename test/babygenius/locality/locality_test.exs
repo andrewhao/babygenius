@@ -2,10 +2,20 @@ defmodule Babygenius.LocalityTest do
   use Babygenius.DataCase
 
   alias Babygenius.Locality
+  alias Locality.Zipcode
+
+  import Mox
+
+  setup do
+    Locality.ZipcodeTimezoneService.Mock
+    |> expect(:fetch_zipcode, fn zip ->
+         %Zipcode{zip: zip, timezone: "America/Los_Angeles"}
+       end)
+
+    {:ok, mock: "installed"}
+  end
 
   describe "zipcodes" do
-    alias Babygenius.Locality.Zipcode
-
     @valid_attrs %{zip: "94606", timezone: "America/Los_Angeles"}
     @update_attrs %{}
     @invalid_attrs %{}
