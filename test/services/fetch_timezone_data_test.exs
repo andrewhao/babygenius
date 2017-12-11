@@ -1,5 +1,5 @@
 defmodule Babygenius.FetchTimezoneDataTest do
-  use Babygenius.ModelCase
+  use Babygenius.DataCase
   import Babygenius.Factory
   import Mox
   alias BabygeniusWeb.{FetchTimezoneData}

@@ -1,5 +1,5 @@
 defmodule Babygenius.UserTest do
-  use Babygenius.ModelCase
+  use Babygenius.DataCase
 
   alias BabygeniusWeb.User
 
