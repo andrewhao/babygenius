@@ -11,7 +11,7 @@ defmodule Babygenius do
       # Start the Ecto repository
       supervisor(Babygenius.Repo, []),
       # Start the endpoint when the application starts
-      supervisor(Babygenius.Endpoint, []),
+      supervisor(BabygeniusWeb.Endpoint, [])
       # Start your own worker by calling: Babygenius.Worker.start_link(arg1, arg2, arg3)
       # worker(Babygenius.Worker, [arg1, arg2, arg3]),
     ]
@@ -25,7 +25,7 @@ defmodule Babygenius do
   # Tell Phoenix to update the endpoint configuration
   # whenever the application is updated.
   def config_change(changed, _new, removed) do
-    Babygenius.Endpoint.config_change(changed, removed)
+    BabygeniusWeb.Endpoint.config_change(changed, removed)
     :ok
   end
 end

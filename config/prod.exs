@@ -1,6 +1,6 @@
 use Mix.Config
 
-config :babygenius, Babygenius.Endpoint,
+config :babygenius, BabygeniusWeb.Endpoint,
   http: [port: {:system, "PORT"}],
   url: [scheme: "https", host: "babygenius.herokuapp.com", port: 443],
   force_ssl: [rewrite_on: [:x_forwarded_proto]],

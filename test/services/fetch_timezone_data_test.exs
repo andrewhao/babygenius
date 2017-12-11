@@ -2,7 +2,7 @@ defmodule Babygenius.FetchTimezoneDataTest do
   use Babygenius.ModelCase
   import Babygenius.Factory
   import Mox
-  alias Babygenius.{FetchTimezoneData}
+  alias BabygeniusWeb.{FetchTimezoneData}
 
   setup do
     user = insert(:user)
@@ -15,6 +15,7 @@ defmodule Babygenius.FetchTimezoneDataTest do
     test "queries the Device Address API with bare request map", %{user: user} do
       consent_token = "ConsentTokenValue"
       device_id = "DeviceId"
+
       request = %{
         context: %{
           AudioPlayer: %{playerActivity: "IDLE"},
@@ -30,14 +31,18 @@ defmodule Babygenius.FetchTimezoneDataTest do
               permissions: %{
                 consentToken: consent_token
               },
-              userId: "UserIdValue"}
+              userId: "UserIdValue"
+            }
           }
         }
       }
+
       expected_zip_code = "94105"
 
-      Babygenius.AmazonDeviceService.Mock
-      |> expect(:country_and_zip_code, fn(_device, _consent) -> %{"postalCode" => expected_zip_code} end)
+      BabygeniusWeb.AmazonDeviceService.Mock
+      |> expect(:country_and_zip_code, fn _device, _consent ->
+           %{"postalCode" => expected_zip_code}
+         end)
 
       {:ok, result} = FetchTimezoneData.perform(user.id, request)
       assert result.id == user.id
@@ -51,8 +56,11 @@ defmodule Babygenius.FetchTimezoneDataTest do
     test "queries the Device Address API and stores postal code in user", %{user: user} do
       expected_zip_code = "94105"
 
-      Babygenius.AmazonDeviceService.Mock
-      |> expect(:country_and_zip_code, fn(_device, _consent) -> %{"postalCode" => expected_zip_code} end)
+      BabygeniusWeb.AmazonDeviceService.Mock
+      |> expect(:country_and_zip_code, fn _device, _consent ->
+           %{"postalCode" => expected_zip_code}
+         end)
+
       consent_token = "abcd"
       device_id = "1234"
 

@@ -1,17 +1,17 @@
 defmodule Babygenius.AlexaControllerTest do
-  use Babygenius.ConnCase, async: true
+  use BabygeniusWeb.ConnCase, async: true
   use Babygenius.Web, :model
   use Timex
 
   import Mox
 
-  alias Babygenius.{User, DiaperChange}
+  alias BabygeniusWeb.{User, DiaperChange}
 
   describe "intent_request/3" do
     setup do
       zip_code = "94110"
 
-      Babygenius.AmazonDeviceService.Mock
+      BabygeniusWeb.AmazonDeviceService.Mock
       |> expect(:country_and_zip_code, fn _device, _consent -> %{"postalCode" => zip_code} end)
 
       json = """

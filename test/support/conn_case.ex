@@ -1,4 +1,4 @@
-defmodule Babygenius.ConnCase do
+defmodule BabygeniusWeb.ConnCase do
   @moduledoc """
   This module defines the test case to be used by
   tests that require setting up a connection.
@@ -25,10 +25,10 @@ defmodule Babygenius.ConnCase do
       import Ecto.Changeset
       import Ecto.Query
 
-      import Babygenius.Router.Helpers
+      import BabygeniusWeb.Router.Helpers
 
       # The default endpoint for testing
-      @endpoint Babygenius.Endpoint
+      @endpoint BabygeniusWeb.Endpoint
     end
   end
 

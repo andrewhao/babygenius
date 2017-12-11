@@ -1,3 +1,3 @@
 defmodule Babygenius.PageViewTest do
-  use Babygenius.ConnCase, async: true
+  use BabygeniusWeb.ConnCase, async: true
 end

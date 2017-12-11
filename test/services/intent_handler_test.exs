@@ -3,10 +3,10 @@ defmodule Babygenius.IntentHandlerTest do
   use Timex
   import Babygenius.Factory
   import Mox
-  alias Babygenius.{DiaperChange, IntentHandler}
+  alias BabygeniusWeb.{DiaperChange, IntentHandler}
 
   setup do
-    Babygenius.AmazonDeviceService.Mock
+    BabygeniusWeb.AmazonDeviceService.Mock
     |> expect(:country_and_zip_code, fn _device, _consent -> %{"postalCode" => "91111"} end)
 
     {:ok, pass: "pass"}

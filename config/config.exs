@@ -6,15 +6,13 @@
 use Mix.Config
 
 # General application configuration
-config :babygenius,
-  ecto_repos: [Babygenius.Repo]
+config :babygenius, ecto_repos: [Babygenius.Repo]
 
 # Configures the endpoint
-config :babygenius, Babygenius.Endpoint,
+config :babygenius, BabygeniusWeb.Endpoint,
   url: [host: "localhost"],
-  render_errors: [view: Babygenius.ErrorView, accepts: ~w(html json)],
-  pubsub: [name: Babygenius.PubSub,
-           adapter: Phoenix.PubSub.PG2]
+  render_errors: [view: BabygeniusWeb.ErrorView, accepts: ~w(html json)],
+  pubsub: [name: Babygenius.PubSub, adapter: Phoenix.PubSub.PG2]
 
 # Configures Elixir's Logger
 config :logger, :console,
@@ -23,7 +21,7 @@ config :logger, :console,
 
 config :phoenix, :template_engines, slim: PhoenixSlime.Engine
 
-config :babygenius, :amazon_device_service, Babygenius.AmazonDeviceService.HttpClient
+config :babygenius, :amazon_device_service, BabygeniusWeb.AmazonDeviceService.HttpClient
 # Import environment specific config. This must remain at the bottom
 # of this file so it overrides the configuration defined above.
-import_config "#{Mix.env}.exs"
+import_config "#{Mix.env()}.exs"

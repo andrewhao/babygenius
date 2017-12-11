@@ -1,7 +1,7 @@
 use Mix.Config
 
 # We run a server during test for Wallaby integration testing.
-config :babygenius, Babygenius.Endpoint,
+config :babygenius, BabygeniusWeb.Endpoint,
   http: [port: 4001],
   server: true,
   secret_key_base: "0123456789012345678901234567890123456789012345678901234567890123456789"
@@ -20,4 +20,4 @@ config :babygenius, Babygenius.Repo,
 
 config :babygenius, :sql_sandbox, true
 
-config :babygenius, :amazon_device_service, Babygenius.AmazonDeviceService.Mock
+config :babygenius, :amazon_device_service, BabygeniusWeb.AmazonDeviceService.Mock
