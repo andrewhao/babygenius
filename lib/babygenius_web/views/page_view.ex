@@ -1,3 +1,3 @@
 defmodule BabygeniusWeb.PageView do
-  use Babygenius.Web, :view
+  use BabygeniusWeb, :view
 end

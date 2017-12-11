@@ -1,3 +1,3 @@
 defmodule BabygeniusWeb.LayoutView do
-  use Babygenius.Web, :view
+  use BabygeniusWeb, :view
 end

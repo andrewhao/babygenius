@@ -1,5 +1,5 @@
 defmodule BabygeniusWeb.Router do
-  use Babygenius.Web, :router
+  use BabygeniusWeb, :router
 
   pipeline :browser do
     plug(:accepts, ["html"])

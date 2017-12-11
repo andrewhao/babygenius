@@ -1,5 +1,5 @@
 defmodule BabygeniusWeb.PageController do
-  use Babygenius.Web, :controller
+  use BabygeniusWeb, :controller
 
   def index(conn, _params) do
     conn

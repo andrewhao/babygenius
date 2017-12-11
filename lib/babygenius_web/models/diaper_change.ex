@@ -3,7 +3,7 @@ defmodule BabygeniusWeb.DiaperChange do
   Repesentation of a Diaper Change event
   """
 
-  use Babygenius.Web, :model
+  use BabygeniusWeb, :model
 
   schema "diaper_changes" do
     field(:type, :string)

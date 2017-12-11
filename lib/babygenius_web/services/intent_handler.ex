@@ -5,7 +5,7 @@ defmodule BabygeniusWeb.IntentHandler do
   use Timex
   alias BabygeniusWeb.{User, DiaperChange, FetchTimezoneData}
   alias Babygenius.{Repo}
-  use Babygenius.Web, :model
+  use BabygeniusWeb, :model
 
   @spec handle_intent(clause :: String.t(), request :: map(), now :: DateTime.t()) :: map()
   def handle_intent(clause, request, now \\ Timex.now())

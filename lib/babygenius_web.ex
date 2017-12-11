@@ -1,12 +1,12 @@
-defmodule Babygenius.Web do
+defmodule BabygeniusWeb do
   @moduledoc """
   A module that keeps using definitions for controllers,
   views and so on.
 
   This can be used in your application as:
 
-      use Babygenius.Web, :controller
-      use Babygenius.Web, :view
+      use BabygeniusWeb, :controller
+      use BabygeniusWeb, :view
 
   The definitions below will be executed for every view,
   controller, etc, so keep them short and clean, focused

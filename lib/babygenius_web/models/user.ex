@@ -3,7 +3,7 @@ defmodule BabygeniusWeb.User do
   DB representation of a user from Alexa
   """
 
-  use Babygenius.Web, :model
+  use BabygeniusWeb, :model
   alias BabygeniusWeb.{User}
 
   schema "users" do

@@ -1,5 +1,5 @@
 defmodule BabygeniusWeb.ErrorView do
-  use Babygenius.Web, :view
+  use BabygeniusWeb, :view
 
   def render("404.html", _assigns) do
     "Page not found"

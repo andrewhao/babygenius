@@ -1,6 +1,6 @@
 defmodule Babygenius.AlexaControllerTest do
   use BabygeniusWeb.ConnCase, async: true
-  use Babygenius.Web, :model
+  use BabygeniusWeb, :model
   use Timex
 
   import Mox

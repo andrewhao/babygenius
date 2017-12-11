@@ -1,5 +1,5 @@
 defmodule BabygeniusWeb.AlexaController do
-  use Babygenius.Web, :controller
+  use BabygeniusWeb, :controller
   use PhoenixAlexa.Controller, :command
   use Timex
 
