@@ -12,9 +12,9 @@ config :babygenius, Babygenius.Endpoint,
   code_reloader: true,
   check_origin: false,
   secret_key_base: System.get_env("SECRET_KEY_BASE"),
-  watchers: [node: ["node_modules/brunch/bin/brunch", "watch", "--stdin",
-                    cd: Path.expand("../", __DIR__)]]
-
+  watchers: [
+    node: ["node_modules/brunch/bin/brunch", "watch", "--stdin", cd: Path.expand("../", __DIR__)]
+  ]
 
 # Watch static and templates for browser reloading.
 config :babygenius, Babygenius.Endpoint,
@@ -22,8 +22,8 @@ config :babygenius, Babygenius.Endpoint,
     patterns: [
       ~r{priv/static/.*(js|css|png|jpeg|jpg|gif|svg)$},
       ~r{priv/gettext/.*(po)$},
-      ~r{web/views/.*(ex)$},
-      ~r{web/templates/.*(eex|slim)$}
+      ~r{lib/*/views/.*(ex)$},
+      ~r{lib/*/templates/.*(eex|slim)$}
     ]
   ]
 
