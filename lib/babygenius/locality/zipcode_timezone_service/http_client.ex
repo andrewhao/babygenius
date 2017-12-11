@@ -4,11 +4,13 @@ defmodule Babygenius.Locality.ZipcodeTimezoneService.HttpClient do
   alias Babygenius.Locality.Zipcode
 
   @base_url "https://zipgenius.herokuapp.com"
+  @http_client_options [:timeout, 30000]
+  @http_client_headers [Accept: "application/json"]
 
   def fetch_zipcode(zip) do
     url = "#{@base_url}/api/zipcodes/#{zip}"
 
-    HTTPoison.get!(url)
+    HTTPoison.get!(url, @http_client_headers, @http_client_options)
     |> Map.get(:body)
     |> Poison.decode!()
     |> Map.get("zipcode")
@@ -24,7 +26,7 @@ defmodule Babygenius.Locality.ZipcodeTimezoneService.HttpClient do
   def all_zipcodes() do
     url = "#{@base_url}/api/zipcodes"
 
-    HTTPoison.get!(url)
+    HTTPoison.get!(url, @http_client_headers, @http_client_options)
     |> Map.get(:body)
     |> Poison.decode!()
     |> Map.get("zipcodes")
