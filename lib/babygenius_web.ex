@@ -29,6 +29,7 @@ defmodule BabygeniusWeb do
   def controller do
     quote do
       use Phoenix.Controller, namespace: BabygeniusWeb
+      use ScoutApm.Instrumentation
 
       alias Babygenius.Repo
       import Ecto
