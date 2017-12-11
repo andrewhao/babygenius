@@ -2,7 +2,7 @@ defmodule Babygenius.Factory do
   use ExMachina.Ecto, repo: Babygenius.Repo
   use Timex
 
-  alias Babygenius.{User,DiaperChange}
+  alias BabygeniusWeb.{User, DiaperChange}
 
   # Sample user factory
   def user_factory do

@@ -10,7 +10,7 @@ defmodule Babygenius.AcceptanceCase do
       import Ecto.Changeset
       import Ecto.Query
 
-      import Babygenius.Router.Helpers
+      import BabygeniusWeb.Router.Helpers
     end
   end
 

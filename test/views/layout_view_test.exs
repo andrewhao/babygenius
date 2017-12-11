@@ -1,3 +1,3 @@
 defmodule Babygenius.LayoutViewTest do
-  use Babygenius.ConnCase, async: true
+  use BabygeniusWeb.ConnCase, async: true
 end

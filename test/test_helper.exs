@@ -1,4 +1,4 @@
-ExUnit.start
+ExUnit.start()
 
 Ecto.Adapters.SQL.Sandbox.mode(Babygenius.Repo, :manual)
 
@@ -7,12 +7,12 @@ ExUnit.configure(exclude: [skip: true])
 
 # Wallaby
 {:ok, _} = Application.ensure_all_started(:wallaby)
-Application.put_env(:wallaby, :base_url, Babygenius.Endpoint.url)
+Application.put_env(:wallaby, :base_url, BabygeniusWeb.Endpoint.url())
 
 # ExMachina
 {:ok, _} = Application.ensure_all_started(:ex_machina)
 
 # Mox
-Mox.defmock(Babygenius.AmazonDeviceService.Mock, for: Babygenius.AmazonDeviceService)
+Mox.defmock(BabygeniusWeb.AmazonDeviceService.Mock, for: BabygeniusWeb.AmazonDeviceService)
 
 {:ok, _} = Application.ensure_all_started(:mox)
