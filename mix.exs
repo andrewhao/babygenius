@@ -68,7 +68,8 @@ defmodule Babygenius.Mixfile do
       {:credo, "~> 0.8", only: [:dev, :test], runtime: false},
       {:dialyxir, "~> 0.5", only: [:dev], runtime: false},
       {:mox, "~> 0.3", only: :test},
-      {:scout_apm, "~> 0.0"}
+      {:scout_apm, "~> 0.0"},
+      {:exactor, "~> 2.2.4", warn_missing: false}
     ]
   end
 

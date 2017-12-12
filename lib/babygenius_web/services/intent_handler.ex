@@ -3,9 +3,11 @@ defmodule BabygeniusWeb.IntentHandler do
     Service module to handle incoming intents from Alexa Skills Kit
   """
   use Timex
-  alias BabygeniusWeb.{User, DiaperChange, FetchTimezoneData}
+  alias BabygeniusWeb.{User, DiaperChange}
   alias Babygenius.{Repo}
   use BabygeniusWeb, :model
+
+  @fetch_zipcode_from_device_api Application.get_env(:babygenius, :fetch_zipcode_from_device_api)
 
   @spec handle_intent(clause :: String.t(), request :: map(), now :: DateTime.t()) :: map()
   def handle_intent(clause, request, now \\ Timex.now())
@@ -13,7 +15,7 @@ defmodule BabygeniusWeb.IntentHandler do
   def handle_intent("GetLastDiaperChange", request, _now) do
     user = find_or_create_user_from_request(request)
 
-    with {:ok, _} <- FetchTimezoneData.perform(user.id, request) do
+    with {:ok, _} <- @fetch_zipcode_from_device_api.perform(user.id, request) do
       from(d in DiaperChange, where: d.user_id == ^user.id, order_by: d.occurred_at)
       |> last
       |> Repo.one()
@@ -25,7 +27,7 @@ defmodule BabygeniusWeb.IntentHandler do
   def handle_intent("AddDiaperChange", request, now) do
     user = find_or_create_user_from_request(request)
 
-    with {:ok, _} <- FetchTimezoneData.perform(user.id, request) do
+    with {:ok, _} <- @fetch_zipcode_from_device_api.perform(user.id, request) do
       diaper_change_from_request(user, request, now)
       |> Repo.insert!()
       |> diaper_change_speech

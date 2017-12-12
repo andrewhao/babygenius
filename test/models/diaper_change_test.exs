@@ -1,5 +1,5 @@
 defmodule Babygenius.DiaperChangeTest do
-  use Babygenius.ModelCase
+  use Babygenius.DataCase
 
   alias BabygeniusWeb.DiaperChange
 

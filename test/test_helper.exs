@@ -15,4 +15,14 @@ Application.put_env(:wallaby, :base_url, BabygeniusWeb.Endpoint.url())
 # Mox
 Mox.defmock(BabygeniusWeb.AmazonDeviceService.Mock, for: BabygeniusWeb.AmazonDeviceService)
 
+# Mox.defmock(
+#   BabygeniusWeb.FetchZipcodeFromDeviceApi.Mock,
+#   for: BabygeniusWeb.FetchZipcodeFromDeviceApi
+# )
+
+Mox.defmock(
+  Babygenius.Locality.ZipcodeTimezoneService.Mock,
+  for: Babygenius.Locality.ZipcodeTimezoneService
+)
+
 {:ok, _} = Application.ensure_all_started(:mox)

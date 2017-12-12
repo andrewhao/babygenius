@@ -1,5 +1,5 @@
 defmodule Babygenius.IntentHandlerTest do
-  use Babygenius.ModelCase
+  use Babygenius.DataCase
   use Timex
   import Babygenius.Factory
   import Mox

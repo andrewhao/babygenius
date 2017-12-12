@@ -1,8 +1,8 @@
-defmodule Babygenius.FetchTimezoneDataTest do
-  use Babygenius.ModelCase
+defmodule Babygenius.FetchZipcodeFromDeviceApi.LiveTest do
+  use Babygenius.DataCase
   import Babygenius.Factory
   import Mox
-  alias BabygeniusWeb.{FetchTimezoneData}
+  alias BabygeniusWeb.FetchZipcodeFromDeviceApi.{Live}
 
   setup do
     user = insert(:user)
@@ -11,7 +11,7 @@ defmodule Babygenius.FetchTimezoneDataTest do
 
   setup :verify_on_exit!
 
-  describe "perform/2" do
+  describe "perform/3" do
     test "queries the Device Address API with bare request map", %{user: user} do
       consent_token = "ConsentTokenValue"
       device_id = "DeviceId"
@@ -44,7 +44,7 @@ defmodule Babygenius.FetchTimezoneDataTest do
            %{"postalCode" => expected_zip_code}
          end)
 
-      {:ok, result} = FetchTimezoneData.perform(user.id, request)
+      {:ok, result} = Live.perform(user.id, request, fn _, _ -> nil end)
       assert result.id == user.id
       assert result.zip_code == expected_zip_code
       assert result.consent_token == consent_token
@@ -52,7 +52,7 @@ defmodule Babygenius.FetchTimezoneDataTest do
     end
   end
 
-  describe "perform/3" do
+  describe "perform/4" do
     test "queries the Device Address API and stores postal code in user", %{user: user} do
       expected_zip_code = "94105"
 
@@ -64,7 +64,7 @@ defmodule Babygenius.FetchTimezoneDataTest do
       consent_token = "abcd"
       device_id = "1234"
 
-      {:ok, result} = FetchTimezoneData.perform(user.id, device_id, consent_token)
+      {:ok, result} = Live.perform(user.id, device_id, consent_token, fn _, _ -> nil end)
       assert result.id == user.id
       assert result.zip_code == expected_zip_code
       assert result.consent_token == consent_token
