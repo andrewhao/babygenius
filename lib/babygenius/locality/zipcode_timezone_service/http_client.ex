@@ -4,7 +4,7 @@ defmodule Babygenius.Locality.ZipcodeTimezoneService.HttpClient do
   alias Babygenius.Locality.Zipcode
 
   @base_url "https://zipgenius.herokuapp.com"
-  @http_client_options [:timeout, 30000]
+  @http_client_options [timeout: 50000, recv_timeout: 50000]
   @http_client_headers [Accept: "application/json"]
 
   def fetch_zipcode(zip) do

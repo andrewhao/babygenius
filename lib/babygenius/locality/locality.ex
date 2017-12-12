@@ -6,7 +6,8 @@ defmodule Babygenius.Locality do
 
   import Ecto.Query, warn: false
 
-  alias Babygenius.Locality.Zipcode
+  alias BabygeniusWeb.User
+  alias Babygenius.Locality.{Zipcode, FetchTimezone}
 
   @zipcode_timezone_service Application.get_env(:babygenius, :zipcode_timezone_service)
 
@@ -43,5 +44,12 @@ defmodule Babygenius.Locality do
   @spec create_zipcode(attrs :: map()) :: {:ok, %Zipcode{}}
   def create_zipcode(attrs) do
     {:ok, struct(Zipcode, attrs)}
+  end
+
+  @spec fetch_timezone_by_zipcode_for_user(String.t(), %User{}) :: {:ok, pid}
+  def fetch_timezone_by_zipcode_for_user(zipcode, user) do
+    Task.Supervisor.start_child(Babygenius.TaskSupervisor, fn ->
+      FetchTimezone.run(zipcode, user)
+    end)
   end
 end

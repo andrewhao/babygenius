@@ -11,7 +11,9 @@ defmodule Babygenius do
       # Start the Ecto repository
       supervisor(Babygenius.Repo, []),
       # Start the endpoint when the application starts
-      supervisor(BabygeniusWeb.Endpoint, [])
+      supervisor(BabygeniusWeb.Endpoint, []),
+      # Supervise the FetchTimezone job
+      supervisor(Task.Supervisor, [[name: Babygenius.TaskSupervisor, restart: :transient]])
       # Start your own worker by calling: Babygenius.Worker.start_link(arg1, arg2, arg3)
       # worker(Babygenius.Worker, [arg1, arg2, arg3]),
     ]
