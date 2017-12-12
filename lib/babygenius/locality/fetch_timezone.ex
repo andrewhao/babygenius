@@ -16,9 +16,8 @@ defmodule Babygenius.Locality.FetchTimezone do
   def run(zipcode, user) do
     Locality.get_zipcode!(zipcode)
     |> Map.get(:timezone)
-    |> Apex.ap()
+    |> IO.inspect(label: "Timezone fetched is")
     |> (fn timezone -> User.changeset(user, %{timezone_identifier: timezone}) end).()
-    |> Apex.ap()
     |> Repo.update!()
   end
 end
