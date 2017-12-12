@@ -22,6 +22,7 @@ config :logger, :console,
 config :phoenix, :template_engines, slim: PhoenixSlime.Engine
 
 config :babygenius, :amazon_device_service, BabygeniusWeb.AmazonDeviceService.HttpClient
+config :babygenius, :fetch_zipcode_from_device_api, BabygeniusWeb.FetchZipcodeFromDeviceApi.Live
 
 config :babygenius,
        :zipcode_timezone_service,

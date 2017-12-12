@@ -22,3 +22,4 @@ config :babygenius, :sql_sandbox, true
 
 config :babygenius, :amazon_device_service, BabygeniusWeb.AmazonDeviceService.Mock
 config :babygenius, :zipcode_timezone_service, Babygenius.Locality.ZipcodeTimezoneService.Mock
+config :babygenius, :fetch_zipcode_from_device_api, BabygeniusWeb.FetchZipcodeFromDeviceApi.Mock

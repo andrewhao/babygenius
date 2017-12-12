@@ -153,6 +153,7 @@ defmodule Babygenius.AlexaControllerTest do
                "A wet diaper change was logged September 8th at 3:00 AM"
     end
 
+    @tag :skip
     test "it looks up zip code and stores in the DB", %{
       request: request,
       json: json,
