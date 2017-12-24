@@ -6,8 +6,9 @@ defmodule Babygenius.Locality do
 
   import Ecto.Query, warn: false
 
+  alias Babygenius.Repo
   alias BabygeniusWeb.User
-  alias Babygenius.Locality.{Zipcode, FetchTimezone}
+  alias Babygenius.Locality.{Zipcode, FetchTimezone, Setting}
 
   @zipcode_timezone_service Application.get_env(:babygenius, :zipcode_timezone_service)
 
@@ -51,5 +52,31 @@ defmodule Babygenius.Locality do
     Task.Supervisor.start_child(Babygenius.TaskSupervisor, fn ->
       FetchTimezone.run(zipcode, user)
     end)
+  end
+
+  @doc """
+  Gets a single setting.
+
+  Raises `Ecto.NoResultsError` if the Setting does not exist.
+
+  ## Examples
+
+      iex> get_setting!(123)
+      %Setting{}
+
+      iex> get_setting!(456)
+      ** (Ecto.NoResultsError)
+
+  """
+  @spec get_setting!(id :: String.t() | integer()) :: %Setting{}
+  def get_setting!(id), do: Repo.get!(Setting, id)
+
+  @spec create_setting(attrs :: map()) :: {:ok, %Setting{}}
+  def create_setting(attrs) do
+    {
+      :ok,
+      Setting.changeset(%Setting{}, attrs)
+      |> Repo.insert!()
+    }
   end
 end
