@@ -2,7 +2,7 @@ defmodule Babygenius.FetchZipcodeFromDeviceApi.LiveTest do
   use Babygenius.DataCase
   import Babygenius.Factory
   import Mox
-  alias BabygeniusWeb.FetchZipcodeFromDeviceApi.{Live}
+  alias Babygenius.Locality.FetchZipcodeFromDeviceApi.{Live}
 
   setup do
     user = insert(:user)

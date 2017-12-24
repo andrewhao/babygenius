@@ -73,10 +73,15 @@ defmodule Babygenius.Locality do
 
   @spec create_setting(attrs :: map()) :: {:ok, %Setting{}}
   def create_setting(attrs) do
-    {
-      :ok,
-      Setting.changeset(%Setting{}, attrs)
-      |> Repo.insert!()
-    }
+    %Setting{}
+    |> Setting.changeset(attrs)
+    |> Repo.insert()
+  end
+
+  @spec update_setting(%Setting{}, map()) :: {:ok, %Setting{}}
+  def update_setting(%Setting{} = setting, attrs) do
+    setting
+    |> Setting.changeset(attrs)
+    |> Repo.update()
   end
 end

@@ -1,4 +1,4 @@
-defmodule BabygeniusWeb.FetchZipcodeFromDeviceApi do
+defmodule Babygenius.Locality.FetchZipcodeFromDeviceApi do
   alias BabygeniusWeb.User
 
   @doc "Fetch zip code and country from API"
