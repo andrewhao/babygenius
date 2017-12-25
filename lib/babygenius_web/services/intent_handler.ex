@@ -104,7 +104,7 @@ defmodule BabygeniusWeb.IntentHandler do
     now = Timex.now()
 
     speak_date =
-      if now.day == datetime.day && now.month == datetime.month do
+      if now.year == datetime.year && now.day == datetime.day && now.month == datetime.month do
         "today"
       else
         day = datetime.day
