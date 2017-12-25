@@ -69,6 +69,7 @@ defmodule Babygenius.Mixfile do
       {:dialyxir, "~> 0.5", only: [:dev], runtime: false},
       {:mox, "~> 0.3", only: :test},
       {:scout_apm, "~> 0.0"},
+      {:mix_test_watch, "~> 0.5", only: :dev, runtime: false},
       {:exactor, "~> 2.2.4", warn_missing: false}
     ]
   end
