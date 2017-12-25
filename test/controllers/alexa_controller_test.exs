@@ -7,13 +7,15 @@ defmodule Babygenius.AlexaControllerTest do
 
   alias BabygeniusWeb.{User, DiaperChange}
 
+  setup do
+    Babygenius.Locality.FetchZipcodeFromDeviceApi.Mock
+    |> expect(:perform, fn _, _ -> {:ok, "foo"} end)
+
+    {:ok, pass: "pass"}
+  end
+
   describe "intent_request/3" do
     setup do
-      zip_code = "94110"
-
-      BabygeniusWeb.AmazonDeviceService.Mock
-      |> expect(:country_and_zip_code, fn _device, _consent -> %{"postalCode" => zip_code} end)
-
       json = """
       {
         "session": {
@@ -79,7 +81,7 @@ defmodule Babygenius.AlexaControllerTest do
         |> put_req_header("accept", "application/json")
         |> put_req_header("content-type", "application/json")
 
-      {:ok, request: request, json: json, zip_code: zip_code}
+      {:ok, request: request, json: json}
     end
 
     test "responds with shouldEndSession true", context do
@@ -151,36 +153,6 @@ defmodule Babygenius.AlexaControllerTest do
 
       assert get_in(response, ["response", "outputSpeech", "text"]) ==
                "A wet diaper change was logged September 8th at 3:00 AM"
-    end
-
-    @tag :skip
-    test "it looks up zip code and stores in the DB", %{
-      request: request,
-      json: json,
-      zip_code: zip_code
-    } do
-      response =
-        request
-        |> post(alexa_path(build_conn(), :command), json)
-        |> json_response(200)
-
-      user = User |> last |> Repo.one()
-      assert user.zip_code == zip_code
-    end
-
-    @tag :skip
-    test "it looks up time zone and stores in the DB", %{
-      request: request,
-      json: json,
-      zip_code: zip_code
-    } do
-      response =
-        request
-        |> post(alexa_path(build_conn(), :command), json)
-        |> json_response(200)
-
-      user = User |> last |> Repo.one()
-      assert user.timezone_identifier == "America/Los_Angeles"
     end
   end
 

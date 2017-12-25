@@ -6,8 +6,8 @@ defmodule Babygenius.IntentHandlerTest do
   alias BabygeniusWeb.{DiaperChange, IntentHandler}
 
   setup do
-    BabygeniusWeb.AmazonDeviceService.Mock
-    |> expect(:country_and_zip_code, fn _device, _consent -> %{"postalCode" => "91111"} end)
+    Babygenius.Locality.FetchZipcodeFromDeviceApi.Mock
+    |> expect(:perform, fn _, _ -> {:ok, "foo"} end)
 
     {:ok, pass: "pass"}
   end
@@ -61,7 +61,7 @@ defmodule Babygenius.IntentHandlerTest do
     end
 
     test "it reports the latest DiaperChange", context do
-      time_1 = Timex.now() |> Timex.set(year: 2017, month: 12, day: 25, hour: 12, minute: 0)
+      time_1 = Timex.now() |> Timex.set(year: 2020, month: 12, day: 25, hour: 12, minute: 0)
       time_2 = time_1 |> Timex.shift(minutes: 30)
       insert(:diaper_change, occurred_at: time_1, user: context.user)
       insert(:diaper_change, occurred_at: time_2, user: context.user)

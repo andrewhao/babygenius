@@ -2,7 +2,8 @@ defmodule Babygenius.FetchZipcodeFromDeviceApi.LiveTest do
   use Babygenius.DataCase
   import Babygenius.Factory
   import Mox
-  alias BabygeniusWeb.FetchZipcodeFromDeviceApi.{Live}
+  alias Babygenius.Locality.FetchZipcodeFromDeviceApi.{Live}
+  alias Babygenius.Locality.{Setting}
 
   setup do
     user = insert(:user)
@@ -45,15 +46,12 @@ defmodule Babygenius.FetchZipcodeFromDeviceApi.LiveTest do
          end)
 
       {:ok, result} = Live.perform(user.id, request, fn _, _ -> nil end)
-      assert result.id == user.id
       assert result.zip_code == expected_zip_code
-      assert result.consent_token == consent_token
-      assert result.device_id == device_id
     end
   end
 
   describe "perform/4" do
-    test "queries the Device Address API and stores postal code in user", %{user: user} do
+    test "queries the Device Address API and stores postal code in setting", %{user: user} do
       expected_zip_code = "94105"
 
       BabygeniusWeb.AmazonDeviceService.Mock
@@ -65,10 +63,9 @@ defmodule Babygenius.FetchZipcodeFromDeviceApi.LiveTest do
       device_id = "1234"
 
       {:ok, result} = Live.perform(user.id, device_id, consent_token, fn _, _ -> nil end)
-      assert result.id == user.id
+      saved_setting = Repo.all(Setting) |> List.last()
       assert result.zip_code == expected_zip_code
-      assert result.consent_token == consent_token
-      assert result.device_id == device_id
+      assert saved_setting.zip_code == expected_zip_code
     end
   end
 end
