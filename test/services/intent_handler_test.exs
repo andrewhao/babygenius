@@ -6,8 +6,8 @@ defmodule Babygenius.IntentHandlerTest do
   alias BabygeniusWeb.{DiaperChange, IntentHandler}
 
   setup do
-    BabygeniusWeb.AmazonDeviceService.Mock
-    |> expect(:country_and_zip_code, fn _device, _consent -> %{"postalCode" => "91111"} end)
+    Babygenius.Locality.FetchZipcodeFromDeviceApi.Mock
+    |> expect(:perform, fn _, _ -> {:ok, "foo"} end)
 
     {:ok, pass: "pass"}
   end

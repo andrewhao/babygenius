@@ -7,6 +7,7 @@ defmodule Babygenius.Locality.ZipcodeTimezoneService.HttpClient do
   @http_client_options [timeout: 50000, recv_timeout: 50000]
   @http_client_headers [Accept: "application/json"]
 
+  @spec fetch_zipcode(zip :: String.t()) :: %Zipcode{}
   def fetch_zipcode(zip) do
     url = "#{@base_url}/api/zipcodes/#{zip}"
 
@@ -18,11 +19,7 @@ defmodule Babygenius.Locality.ZipcodeTimezoneService.HttpClient do
     |> (fn zip_attrs -> struct(Zipcode, zip_attrs) end).()
   end
 
-  @spec map_to_atoms(map :: map()) :: map()
-  defp map_to_atoms(map) do
-    Enum.reduce(map, %{}, fn {key, val}, acc -> Map.put(acc, String.to_atom(key), val) end)
-  end
-
+  @spec all_zipcodes() :: [%Zipcode{}]
   def all_zipcodes() do
     url = "#{@base_url}/api/zipcodes"
 
@@ -31,5 +28,10 @@ defmodule Babygenius.Locality.ZipcodeTimezoneService.HttpClient do
     |> Poison.decode!()
     |> Map.get("zipcodes")
     |> Enum.map(fn zip_attrs -> struct(Zipcode, map_to_atoms(zip_attrs)) end)
+  end
+
+  @spec map_to_atoms(map :: map()) :: map()
+  defp map_to_atoms(map) do
+    Enum.reduce(map, %{}, fn {key, val}, acc -> Map.put(acc, String.to_atom(key), val) end)
   end
 end
