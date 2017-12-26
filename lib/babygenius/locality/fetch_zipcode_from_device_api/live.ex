@@ -7,7 +7,7 @@ defmodule Babygenius.Locality.FetchZipcodeFromDeviceApi.Live do
   @amazon_device_service Application.get_env(:babygenius, :amazon_device_service)
 
   @spec perform(user_id :: String.t(), request :: map(), zipcode_fn :: fun()) :: {:ok, %Setting{}}
-  def perform(user_id, request, zipcode_fn \\ &Locality.fetch_timezone_by_zipcode_for_setting/2) do
+  def perform(user_id, request, zipcode_fn \\ &Locality.Client.fetch_timezone_by_zipcode_for_setting/2) do
     %{
       context: %{
         System: %{

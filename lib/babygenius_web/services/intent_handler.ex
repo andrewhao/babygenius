@@ -8,6 +8,7 @@ defmodule BabygeniusWeb.IntentHandler do
   use BabygeniusWeb, :model
 
   @fetch_zipcode_from_device_api Application.get_env(:babygenius, :fetch_zipcode_from_device_api)
+  @locality_client Application.get_env(:babygenius, :locality_client)
 
   @spec handle_intent(clause :: String.t(), request :: map(), now :: DateTime.t()) :: map()
   def handle_intent(clause, request, now \\ Timex.now())
@@ -15,13 +16,18 @@ defmodule BabygeniusWeb.IntentHandler do
   def handle_intent("GetLastDiaperChange", request, _now) do
     user = find_or_create_user_from_request(request)
 
-    with {:ok, _} <- @fetch_zipcode_from_device_api.perform(user.id, request) do
-      from(d in DiaperChange, where: d.user_id == ^user.id, order_by: d.occurred_at)
-      |> last
-      |> Repo.one()
-      |> last_diaper_change_text
+    with {:ok, _} <- @fetch_zipcode_from_device_api.perform(user.id, request),
+         user_local_timezone <- @locality_client.get_timezone_for_user(user.id) do
+      get_last_diaper_change(user)
+      |> last_diaper_change_text(user_local_timezone)
       |> (&%{speak_text: &1, should_end_session: true}).()
     end
+  end
+
+  defp get_last_diaper_change(user) do
+    from(d in DiaperChange, where: d.user_id == ^user.id, order_by: d.occurred_at)
+    |> last
+    |> Repo.one()
   end
 
   def handle_intent("AddDiaperChange", request, now) do
@@ -34,13 +40,13 @@ defmodule BabygeniusWeb.IntentHandler do
     end
   end
 
-  @spec last_diaper_change_text(diaper_change :: nil) :: String.t()
-  defp last_diaper_change_text(nil) do
+  @spec last_diaper_change_text(diaper_change :: nil, user_timezone :: String.t()) :: String.t()
+  defp last_diaper_change_text(nil, _user_timezone) do
     "You have not logged any diaper changes yet"
   end
 
-  @spec last_diaper_change_text(diaper_change :: %DiaperChange{}) :: String.t()
-  defp last_diaper_change_text(diaper_change) do
+  @spec last_diaper_change_text(diaper_change :: %DiaperChange{}, user_timezone :: String.t()) :: String.t()
+  defp last_diaper_change_text(diaper_change, _user_timezone) do
     "The last diaper change occurred #{formatted_time(diaper_change.occurred_at)}"
   end
 
