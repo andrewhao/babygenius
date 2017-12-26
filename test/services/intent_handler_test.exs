@@ -6,11 +6,9 @@ defmodule Babygenius.IntentHandlerTest do
   alias BabygeniusWeb.{DiaperChange, IntentHandler}
 
   setup do
-    Babygenius.Locality.FetchZipcodeFromDeviceApi.Mock
-    |> expect(:perform, fn _, _ -> {:ok, "foo"} end)
-
     Babygenius.Locality.Mock
     |> expect(:get_timezone_for_user, fn _ -> "America/Los_Angeles" end)
+    |> expect(:process_timezone_for_user, fn _, _ -> {:ok, "pid"} end)
 
     {:ok, pass: "pass"}
   end

@@ -9,11 +9,13 @@ defmodule Babygenius.Locality.Client do
   import Ecto.Query, warn: true
 
   alias Babygenius.Repo
-  alias Babygenius.Locality.{FetchTimezone, Setting}
+  alias Babygenius.Locality.{FetchTimezone, Setting, FetchZipcodeFromDeviceApi}
 
-  @spec process_timezone_for_user(String.t()) :: {:ok, pid}
-  def process_timezone_for_user(user_id) do
-    # TBD
+  @spec process_timezone_for_user(user_id :: String.t(), request :: map()) :: {:ok, pid}
+  def process_timezone_for_user(user_id, request) do
+    Task.Supervisor.start_child(Babygenius.TaskSupervisor, fn ->
+      FetchZipcodeFromDeviceApi.Live.perform(user_id, request)
+    end)
   end
 
   @spec get_timezone_for_user(user_id :: String.t()) :: String.t()
