@@ -31,6 +31,8 @@ config :babygenius,
        :zipcode_timezone_service,
        Babygenius.Locality.ZipcodeTimezoneService.HttpClient
 
+config :babygenius, :locality_client, Babygenius.Locality.Client
+
 import_config "scout_apm.exs"
 
 config :babygenius, Babygenius.Repo,

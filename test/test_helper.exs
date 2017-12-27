@@ -25,4 +25,6 @@ Mox.defmock(
   for: Babygenius.Locality.ZipcodeTimezoneService
 )
 
+Mox.defmock(Babygenius.Locality.Mock, for: Babygenius.Locality)
+
 {:ok, _} = Application.ensure_all_started(:mox)

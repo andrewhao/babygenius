@@ -1,13 +1,30 @@
-defmodule Babygenius.Locality do
+defmodule Babygenius.Locality.Client do
   @moduledoc """
   The Locality context. This manages concerns around a user's location, and their
   associated implications around time zones.
   """
 
-  import Ecto.Query, warn: false
+  @behaviour Babygenius.Locality
+
+  import Ecto.Query, warn: true
 
   alias Babygenius.Repo
-  alias Babygenius.Locality.{FetchTimezone, Setting}
+  alias Babygenius.Locality.{FetchTimezone, Setting, FetchZipcodeFromDeviceApi}
+
+  @spec process_timezone_for_user(user_id :: String.t(), request :: map()) :: {:ok, pid}
+  def process_timezone_for_user(user_id, request) do
+    Task.Supervisor.start_child(Babygenius.TaskSupervisor, fn ->
+      FetchZipcodeFromDeviceApi.Live.perform(user_id, request)
+    end)
+  end
+
+  @spec get_timezone_for_user(user_id :: String.t()) :: String.t()
+  def get_timezone_for_user(user_id) do
+    case Repo.get_by(Setting, user_id: user_id) do
+      nil -> "Etc/UTC"
+      setting -> setting.timezone_identifier
+    end
+  end
 
   @spec fetch_timezone_by_zipcode_for_setting(String.t(), %Setting{}) :: {:ok, pid}
   def fetch_timezone_by_zipcode_for_setting(zipcode, setting) do
@@ -16,20 +33,6 @@ defmodule Babygenius.Locality do
     end)
   end
 
-  @doc """
-  Gets a single setting.
-
-  Raises `Ecto.NoResultsError` if the Setting does not exist.
-
-  ## Examples
-
-      iex> get_setting!(123)
-      %Setting{}
-
-      iex> get_setting!(456)
-      ** (Ecto.NoResultsError)
-
-  """
   @spec get_setting!(id :: String.t() | integer()) :: %Setting{}
   def get_setting!(id), do: Repo.get!(Setting, id)
 

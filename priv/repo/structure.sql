@@ -2,12 +2,17 @@
 -- PostgreSQL database dump
 --
 
+-- Dumped from database version 9.6.5
+-- Dumped by pg_dump version 9.6.5
+
 SET statement_timeout = 0;
 SET lock_timeout = 0;
+SET idle_in_transaction_session_timeout = 0;
 SET client_encoding = 'UTF8';
 SET standard_conforming_strings = on;
 SET check_function_bodies = false;
 SET client_min_messages = warning;
+SET row_security = off;
 
 --
 -- Name: plpgsql; Type: EXTENSION; Schema: -; Owner: -
@@ -23,20 +28,6 @@ CREATE EXTENSION IF NOT EXISTS plpgsql WITH SCHEMA pg_catalog;
 COMMENT ON EXTENSION plpgsql IS 'PL/pgSQL procedural language';
 
 
---
--- Name: hstore; Type: EXTENSION; Schema: -; Owner: -
---
-
-CREATE EXTENSION IF NOT EXISTS hstore WITH SCHEMA public;
-
-
---
--- Name: EXTENSION hstore; Type: COMMENT; Schema: -; Owner: -
---
-
-COMMENT ON EXTENSION hstore IS 'data type for storing sets of (key, value) pairs';
-
-
 SET search_path = public, pg_catalog;
 
 SET default_tablespace = '';
@@ -44,14 +35,14 @@ SET default_tablespace = '';
 SET default_with_oids = false;
 
 --
--- Name: diaper_changes; Type: TABLE; Schema: public; Owner: -; Tablespace: 
+-- Name: diaper_changes; Type: TABLE; Schema: public; Owner: -
 --
 
 CREATE TABLE diaper_changes (
     id integer NOT NULL,
     type character varying(255),
-    occurred_at timestamp without time zone NOT NULL,
     user_id integer NOT NULL,
+    occurred_at timestamp without time zone NOT NULL,
     inserted_at timestamp without time zone NOT NULL,
     updated_at timestamp without time zone NOT NULL
 );
@@ -77,7 +68,40 @@ ALTER SEQUENCE diaper_changes_id_seq OWNED BY diaper_changes.id;
 
 
 --
--- Name: schema_migrations; Type: TABLE; Schema: public; Owner: -; Tablespace: 
+-- Name: locality_settings; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE locality_settings (
+    id integer NOT NULL,
+    user_id character varying(255) NOT NULL,
+    timezone_identifier character varying(255) DEFAULT 'Etc/UTC'::character varying,
+    zip_code character varying(255),
+    inserted_at timestamp without time zone NOT NULL,
+    updated_at timestamp without time zone NOT NULL
+);
+
+
+--
+-- Name: locality_settings_id_seq; Type: SEQUENCE; Schema: public; Owner: -
+--
+
+CREATE SEQUENCE locality_settings_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+--
+-- Name: locality_settings_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
+--
+
+ALTER SEQUENCE locality_settings_id_seq OWNED BY locality_settings.id;
+
+
+--
+-- Name: schema_migrations; Type: TABLE; Schema: public; Owner: -
 --
 
 CREATE TABLE schema_migrations (
@@ -87,7 +111,7 @@ CREATE TABLE schema_migrations (
 
 
 --
--- Name: users; Type: TABLE; Schema: public; Owner: -; Tablespace: 
+-- Name: users; Type: TABLE; Schema: public; Owner: -
 --
 
 CREATE TABLE users (
@@ -136,21 +160,28 @@ ALTER SEQUENCE users_id_seq OWNED BY users.id;
 
 
 --
--- Name: id; Type: DEFAULT; Schema: public; Owner: -
+-- Name: diaper_changes id; Type: DEFAULT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY diaper_changes ALTER COLUMN id SET DEFAULT nextval('diaper_changes_id_seq'::regclass);
 
 
 --
--- Name: id; Type: DEFAULT; Schema: public; Owner: -
+-- Name: locality_settings id; Type: DEFAULT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY locality_settings ALTER COLUMN id SET DEFAULT nextval('locality_settings_id_seq'::regclass);
+
+
+--
+-- Name: users id; Type: DEFAULT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY users ALTER COLUMN id SET DEFAULT nextval('users_id_seq'::regclass);
 
 
 --
--- Name: diaper_changes_pkey; Type: CONSTRAINT; Schema: public; Owner: -; Tablespace: 
+-- Name: diaper_changes diaper_changes_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY diaper_changes
@@ -158,7 +189,15 @@ ALTER TABLE ONLY diaper_changes
 
 
 --
--- Name: schema_migrations_pkey; Type: CONSTRAINT; Schema: public; Owner: -; Tablespace: 
+-- Name: locality_settings locality_settings_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY locality_settings
+    ADD CONSTRAINT locality_settings_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: schema_migrations schema_migrations_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY schema_migrations
@@ -166,7 +205,7 @@ ALTER TABLE ONLY schema_migrations
 
 
 --
--- Name: users_pkey; Type: CONSTRAINT; Schema: public; Owner: -; Tablespace: 
+-- Name: users users_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY users
@@ -174,21 +213,21 @@ ALTER TABLE ONLY users
 
 
 --
--- Name: diaper_changes_user_id_index; Type: INDEX; Schema: public; Owner: -; Tablespace: 
+-- Name: diaper_changes_user_id_index; Type: INDEX; Schema: public; Owner: -
 --
 
 CREATE INDEX diaper_changes_user_id_index ON diaper_changes USING btree (user_id);
 
 
 --
--- Name: users_amazon_id_index; Type: INDEX; Schema: public; Owner: -; Tablespace: 
+-- Name: users_amazon_id_index; Type: INDEX; Schema: public; Owner: -
 --
 
 CREATE UNIQUE INDEX users_amazon_id_index ON users USING btree (amazon_id);
 
 
 --
--- Name: diaper_changes_user_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+-- Name: diaper_changes diaper_changes_user_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY diaper_changes
@@ -199,5 +238,5 @@ ALTER TABLE ONLY diaper_changes
 -- PostgreSQL database dump complete
 --
 
-INSERT INTO "schema_migrations" (version) VALUES (20170908024821), (20170908032116), (20171111045049), (20171111054748), (20171111055052), (20171125033309), (20171212075425);
+INSERT INTO "schema_migrations" (version) VALUES (20170908024821), (20170908032116), (20171111045049), (20171111054748), (20171111055052), (20171125033309), (20171212075425), (20171224043823), (20171226203431);
 

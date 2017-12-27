@@ -3,7 +3,7 @@ defmodule Babygenius.DiaperChangeTest do
 
   alias BabygeniusWeb.DiaperChange
 
-  @valid_attrs %{occurred_at: NaiveDateTime.utc_now(), type: "some content"}
+  @valid_attrs %{occurred_at: DateTime.utc_now(), type: "some content"}
   @invalid_attrs %{}
 
   setup do
@@ -13,8 +13,6 @@ defmodule Babygenius.DiaperChangeTest do
 
   test "changeset with valid attributes", context do
     valid_attrs = @valid_attrs |> Map.merge(%{user_id: context.user.id})
-
-    # valid_attrs = %{occurred_at: NaiveDateTime.utc_now(), type: "some content", user_id: context.user.id}
     changeset = DiaperChange.changeset(%DiaperChange{}, valid_attrs)
 
     assert changeset.valid?
@@ -23,5 +21,24 @@ defmodule Babygenius.DiaperChangeTest do
   test "changeset with invalid attributes" do
     changeset = DiaperChange.changeset(%DiaperChange{}, @invalid_attrs)
     refute changeset.valid?
+  end
+
+  test "casts occurred_at from non-UTC to UTC, but without shifting", %{user: user} do
+    native_time =
+      DateTime.utc_now()
+      |> Timex.set(hour: 12, minute: 0, second: 0)
+      |> Timex.Timezone.convert("America/Los_Angeles")
+
+    assert native_time.hour == 4
+
+    changeset =
+      DiaperChange.changeset(%DiaperChange{}, %{
+        occurred_at: native_time,
+        type: "type",
+        user_id: user.id
+      })
+
+    assert changeset.changes.occurred_at.time_zone == "Etc/UTC"
+    assert changeset.changes.occurred_at.hour == 4
   end
 end

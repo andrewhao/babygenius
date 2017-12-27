@@ -7,11 +7,11 @@ defmodule BabygeniusWeb.DiaperChange do
 
   schema "diaper_changes" do
     field(:type, :string)
-    field(:occurred_at, Timex.Ecto.DateTime)
+    field(:occurred_at, :utc_datetime)
 
     belongs_to(:user, BabygeniusWeb.User)
 
-    timestamps()
+    timestamps(type: :utc_datetime)
   end
 
   @doc """

@@ -24,6 +24,7 @@ defmodule BabygeniusWeb.ConnCase do
       import Ecto
       import Ecto.Changeset
       import Ecto.Query
+      import Babygenius.Factory
 
       import BabygeniusWeb.Router.Helpers
 
