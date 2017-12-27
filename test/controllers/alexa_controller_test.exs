@@ -24,7 +24,7 @@ defmodule Babygenius.AlexaControllerTest do
       insert(
         :diaper_change,
         user: user,
-        occurred_at: Timex.now() |> Timex.set(hour: 8, minute: 5)
+        occurred_at: Timex.now() |> Timex.set(month: 12, day: 15, hour: 10, minute: 5)
       )
 
       request =
@@ -41,7 +41,7 @@ defmodule Babygenius.AlexaControllerTest do
         |> post(alexa_path(build_conn(), :command), json)
         |> json_response(200)
 
-      expected_text = "The last diaper change occurred today at 8:05 AM"
+      expected_text = "The last diaper change occurred December 15th at 2:05 AM"
 
       assert get_in(response, ["response", "outputSpeech", "text"]) == expected_text
     end
