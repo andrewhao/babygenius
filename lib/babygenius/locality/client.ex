@@ -20,7 +20,7 @@ defmodule Babygenius.Locality.Client do
 
   @spec get_timezone_for_user(user_id :: String.t()) :: String.t()
   def get_timezone_for_user(user_id) do
-    case Repo.get_by(Setting, user_id: user_id) do
+    case Repo.get_by(Setting, user_id: to_string(user_id)) do
       nil -> "Etc/UTC"
       setting -> setting.timezone_identifier
     end
@@ -32,9 +32,6 @@ defmodule Babygenius.Locality.Client do
       FetchTimezone.run(zipcode, setting)
     end)
   end
-
-  @spec get_setting!(id :: String.t() | integer()) :: %Setting{}
-  def get_setting!(id), do: Repo.get!(Setting, id)
 
   @spec create_setting(attrs :: map()) :: {:ok, %Setting{}}
   def create_setting(attrs) do
