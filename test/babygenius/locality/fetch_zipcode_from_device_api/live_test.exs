@@ -71,7 +71,7 @@ defmodule Babygenius.FetchZipcodeFromDeviceApi.LiveTest do
       user: user
     } do
       insert(:locality_setting, user_id: to_string(user.id))
-      
+
       old_count = Repo.aggregate(from(p in "locality_settings"), :count, :id)
 
       {:ok, result} = Live.perform(user.id, "1234", "consent_token", fn _, _ -> nil end)
