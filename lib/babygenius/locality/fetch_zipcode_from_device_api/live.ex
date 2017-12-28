@@ -7,7 +7,11 @@ defmodule Babygenius.Locality.FetchZipcodeFromDeviceApi.Live do
   @amazon_device_service Application.get_env(:babygenius, :amazon_device_service)
 
   @spec perform(user_id :: String.t(), request :: map(), zipcode_fn :: fun()) :: {:ok, %Setting{}}
-  def perform(user_id, request, zipcode_fn \\ &Locality.Client.fetch_timezone_by_zipcode_for_setting/2) do
+  def perform(
+        user_id,
+        request,
+        zipcode_fn \\ &Locality.Client.fetch_timezone_by_zipcode_for_setting/2
+      ) do
     %{
       context: %{
         System: %{
@@ -36,7 +40,10 @@ defmodule Babygenius.Locality.FetchZipcodeFromDeviceApi.Live do
       |> Map.get("postalCode")
 
     updated_setting =
-      %Setting{user_id: user_id |> to_string()}
+      case Repo.get_by(Setting, user_id: to_string(user_id)) do
+        nil -> %Setting{user_id: to_string(user_id)}
+        setting -> setting
+      end
       |> Setting.changeset(%{zip_code: zip_code})
       |> Repo.insert_or_update!()
 

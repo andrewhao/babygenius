@@ -4,6 +4,8 @@ defmodule Babygenius.Factory do
 
   alias BabygeniusWeb.{User, DiaperChange}
 
+  alias Babygenius.Locality.Setting
+
   # Sample user factory
   def user_factory do
     %User{
@@ -16,6 +18,14 @@ defmodule Babygenius.Factory do
       user: build(:user),
       type: "wet",
       occurred_at: Timex.now()
+    }
+  end
+
+  def locality_setting_factory do
+    %Setting{
+      user_id: sequence(:user_id, &"user-#{&1}"),
+      zip_code: nil,
+      timezone_identifier: nil
     }
   end
 end
