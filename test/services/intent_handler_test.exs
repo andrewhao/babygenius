@@ -60,8 +60,22 @@ defmodule Babygenius.IntentHandlerTest do
     } do
       # Today we logged a diaper change at 2:12 AM PST, which is 10:12 AM UTC
       # We query for this time at 7:00 PM UTC, or 11:00 AM PST
-      today = Timex.now() |> Timex.set(hour: 10, minute: 12)
-      today_now = Timex.now() |> Timex.set(hour: 19, minute: 0)
+      today = Timex.now() |> Timex.set(month: 12, day: 15, hour: 10, minute: 12)
+      today_now = Timex.now() |> Timex.set(month: 12, day: 15, hour: 19, minute: 0)
+      insert(:diaper_change, occurred_at: today, user: user)
+      response = IntentHandler.handle_intent("GetLastDiaperChange", request, today_now)
+      assert response.speak_text == "The last diaper change occurred today at 2:12 AM"
+    end
+
+    test "it reports a DiaperChange, shifting to account for local timezone past a day divider",
+         %{
+           request: request,
+           user: user
+         } do
+      # Today we logged a diaper change at 2:12 AM PST, which is 10:12 AM UTC
+      # We query for this time at 8:00 PM PST, or 4:00 AM UTC the next day
+      today = Timex.now() |> Timex.set(month: 12, day: 1, hour: 10, minute: 12)
+      today_now = Timex.now() |> Timex.set(month: 12, day: 2, hour: 4, minute: 0)
       insert(:diaper_change, occurred_at: today, user: user)
       response = IntentHandler.handle_intent("GetLastDiaperChange", request, today_now)
       assert response.speak_text == "The last diaper change occurred today at 2:12 AM"
@@ -185,6 +199,32 @@ defmodule Babygenius.IntentHandlerTest do
 
       # Currently, it's 8:00PM UTC, or 12:00PM PST
       current_time = Timex.now() |> Timex.set(hour: 20, minute: 0, second: 0)
+
+      response = IntentHandler.handle_intent("AddDiaperChange", request, current_time)
+
+      saved_occurred_at =
+        last(DiaperChange)
+        |> Repo.one()
+        |> Map.get(:occurred_at)
+
+      # assert we persisted at UTC
+      assert saved_occurred_at
+             |> Map.get(:hour) == 17
+
+      assert response.speak_text == "A wet diaper change was logged today at 9:00 AM"
+    end
+
+    test "it uses the provided time if one is given, persisting in UTC (converting from local time) even if UTC is into next day",
+         %{request: request} do
+      # The user specifies the diaper change to be logged for 9:00AM PST
+      # Which converts to 5:00PM UTC
+      request =
+        put_in(request, [:request, :intent, :slots, "diaperChangeTime"], %{
+          "value" => "09:00"
+        })
+
+      # Currently, it's 4:00AM UTC, or 8:00PM PST the prior day
+      current_time = Timex.now() |> Timex.set(hour: 4, minute: 0, second: 0)
 
       response = IntentHandler.handle_intent("AddDiaperChange", request, current_time)
 

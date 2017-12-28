@@ -81,16 +81,15 @@ defmodule BabygeniusWeb.IntentHandler do
     diaper_type = get_in(slots, ["diaperType", "value"])
     fetched_diaper_change_date = get_in(slots, ["diaperChangeDate", "value"])
 
+    # The date must be in the user timezone
     diaper_change_date =
       case fetched_diaper_change_date do
         nil ->
           now
+          |> Timex.Timezone.convert(user_timezone)
 
         _ ->
           Timex.parse!(fetched_diaper_change_date, "%Y-%m-%d", :strftime)
-          |> DateTime.from_naive!("Etc/UTC")
-          |> Timex.set(timezone: user_timezone)
-          |> Timex.Timezone.convert("Etc/UTC")
       end
 
     fetched_diaper_change_time = get_in(slots, ["diaperChangeTime", "value"])
