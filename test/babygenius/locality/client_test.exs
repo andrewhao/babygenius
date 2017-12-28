@@ -19,11 +19,6 @@ defmodule Babygenius.Locality.ClientTest do
       setting
     end
 
-    test "get_setting!/1 returns the setting with given id" do
-      setting = setting_fixture()
-      assert Locality.Client.get_setting!(setting.id) == setting
-    end
-
     test "get_timezone_for_user/1 returns a user's timezone if it exists" do
       setting = setting_fixture()
       expected_timezone = "America/Los_Angeles"
