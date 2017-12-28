@@ -34,7 +34,8 @@ defmodule Babygenius.Mixfile do
         :phoenix_ecto,
         :postgrex,
         :timex_ecto,
-        :scout_apm
+        :scout_apm,
+        :sentry
       ]
     ]
   end
@@ -70,7 +71,8 @@ defmodule Babygenius.Mixfile do
       {:mox, "~> 0.3", only: :test},
       {:scout_apm, "~> 0.0"},
       {:mix_test_watch, "~> 0.5", only: :dev, runtime: false},
-      {:exactor, "~> 2.2.4", warn_missing: false}
+      {:exactor, "~> 2.2.4", warn_missing: false},
+      {:sentry, "~> 6.0.4"}
     ]
   end
 

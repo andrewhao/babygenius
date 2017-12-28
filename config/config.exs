@@ -19,6 +19,13 @@ config :logger, :console,
   format: "$time $metadata[$level] $message\n",
   metadata: [:request_id]
 
+# Configure Sentry
+config :sentry,
+  dsn: System.get_env("SENTRY_DSN"),
+  included_environments: [:prod],
+  environment_name: Mix.env(),
+  in_app_module_whitelist: [Babygenius]
+
 config :phoenix, :template_engines, slim: PhoenixSlime.Engine
 
 config :babygenius, :amazon_device_service, BabygeniusWeb.AmazonDeviceService.HttpClient
