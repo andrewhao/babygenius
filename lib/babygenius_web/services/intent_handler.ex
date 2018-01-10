@@ -4,7 +4,7 @@ defmodule BabygeniusWeb.IntentHandler do
   """
   use Timex
   alias BabygeniusWeb.{User, DiaperChange}
-  alias Babygenius.{Repo}
+  alias Babygenius.{Repo, TimeUtils}
   use BabygeniusWeb, :model
 
   @locality_client Application.get_env(:babygenius, :locality_client)
@@ -60,7 +60,7 @@ defmodule BabygeniusWeb.IntentHandler do
       diaper_change
       |> Map.get(:occurred_at)
       |> Timex.Timezone.convert(user_timezone)
-      |> formatted_time(now |> Timex.Timezone.convert(user_timezone))
+      |> TimeUtils.formatted_time(now |> Timex.Timezone.convert(user_timezone))
 
     "The last diaper change occurred #{change_time}"
   end
@@ -125,45 +125,10 @@ defmodule BabygeniusWeb.IntentHandler do
     time =
       diaper_change.occurred_at
       |> Timex.Timezone.convert(user_timezone)
-      |> formatted_time(now |> Timex.Timezone.convert(user_timezone))
+      |> TimeUtils.formatted_time(now |> Timex.Timezone.convert(user_timezone))
 
     speak_text = "A #{diaper_change.type} diaper change was logged #{time}"
 
     %{speak_text: speak_text, should_end_session: true}
-  end
-
-  @spec formatted_time(datetime :: DateTime.t(), now :: DateTime.t()) :: String.t()
-  defp formatted_time(datetime, now \\ Timex.now()) do
-    speak_date =
-      if now.year == datetime.year && now.day == datetime.day && now.month == datetime.month do
-        "today"
-      else
-        day = datetime.day
-        "#{Timex.format!(datetime, "%B", :strftime)} #{day}#{ordinal(day)}"
-      end
-
-    speak_time = datetime |> Timex.format!("%-I:%M %p", :strftime)
-
-    "#{speak_date} at #{speak_time}"
-  end
-
-  @spec ordinal(integer()) :: String.t()
-  defp ordinal(num) do
-    cond do
-      Enum.any?([11, 12, 13], &(&1 == Integer.mod(num, 100))) ->
-        "th"
-
-      Integer.mod(num, 10) == 1 ->
-        "st"
-
-      Integer.mod(num, 10) == 2 ->
-        "nd"
-
-      Integer.mod(num, 10) == 3 ->
-        "rd"
-
-      true ->
-        "th"
-    end
   end
 end
