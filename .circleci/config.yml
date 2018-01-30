@@ -2,7 +2,7 @@ version: 2.0
 jobs:
   build:
     docker:
-      - image: circleci/elixir:1.5.1
+      - image: circleci/elixir:1.6.0
       - image: postgres:9.6.2
         env:
           - POSTGRES_USER=ubuntu
