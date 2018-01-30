@@ -1,9 +1,10 @@
-defmodule BabygeniusWeb.DiaperChange do
+defmodule Babygenius.BabyLife.DiaperChange do
   @moduledoc """
   Repesentation of a Diaper Change event
   """
 
-  use BabygeniusWeb, :model
+  use Ecto.Schema
+  import Ecto.Changeset
 
   schema "diaper_changes" do
     field(:type, :string)

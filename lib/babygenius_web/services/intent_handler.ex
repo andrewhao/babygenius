@@ -3,8 +3,8 @@ defmodule BabygeniusWeb.IntentHandler do
     Service module to handle incoming intents from Alexa Skills Kit
   """
   use Timex
-  alias BabygeniusWeb.{User, DiaperChange}
-  alias Babygenius.{Repo, TimeUtils}
+  alias BabygeniusWeb.{User}
+  alias Babygenius.{BabyLife, TimeUtils}
   use BabygeniusWeb, :model
 
   @locality_client Application.get_env(:babygenius, :locality_client)
@@ -17,7 +17,7 @@ defmodule BabygeniusWeb.IntentHandler do
 
     with {:ok, _} <- @locality_client.process_timezone_for_user(user.id, request),
          user_local_timezone <- @locality_client.get_timezone_for_user(user.id) do
-      get_last_diaper_change(user)
+      BabyLife.Client.get_last_diaper_change(user)
       |> last_diaper_change_text(user_local_timezone, now)
       |> (&%{speak_text: &1, should_end_session: true}).()
     end
@@ -29,20 +29,12 @@ defmodule BabygeniusWeb.IntentHandler do
     with {:ok, _} <- @locality_client.process_timezone_for_user(user.id, request),
          user_local_timezone <- @locality_client.get_timezone_for_user(user.id) do
       diaper_change_from_request(user, request, user_local_timezone, now)
-      |> Repo.insert!()
       |> add_diaper_change_speech(user_local_timezone, now)
     end
   end
 
-  @spec get_last_diaper_change(user :: %User{}) :: %DiaperChange{} | nil
-  defp get_last_diaper_change(user) do
-    from(d in DiaperChange, where: d.user_id == ^user.id, order_by: d.occurred_at)
-    |> last
-    |> Repo.one()
-  end
-
   @spec last_diaper_change_text(
-          diaper_change :: %DiaperChange{} | nil,
+          diaper_change :: %BabyLife.DiaperChange{} | nil,
           user_timezone :: String.t(),
           now :: DateTime.t()
         ) :: String.t()
@@ -70,26 +62,25 @@ defmodule BabygeniusWeb.IntentHandler do
           request :: map(),
           user_timezone :: String.t(),
           now :: DateTime.t()
-        ) :: %DiaperChange{}
+        ) :: %BabyLife.DiaperChange{}
   defp diaper_change_from_request(user, request, user_timezone, now) do
     slots = request.request.intent.slots
     diaper_type = get_in(slots, ["diaperType", "value"])
     fetched_diaper_change_date = get_in(slots, ["diaperChangeDate", "value"])
     fetched_diaper_change_time = get_in(slots, ["diaperChangeTime", "value"])
 
-    diaper_change_time =
-      TimeUtils.utc_time_from_local_spoken_time(
-        fetched_diaper_change_time,
-        fetched_diaper_change_date,
-        user_timezone,
-        now
-      )
-
-    %DiaperChange{user_id: user.id, type: diaper_type, occurred_at: diaper_change_time}
+    BabyLife.Client.create_diaper_change(
+      user,
+      diaper_type,
+      fetched_diaper_change_time,
+      fetched_diaper_change_date,
+      user_timezone,
+      now
+    )
   end
 
   @spec add_diaper_change_speech(
-          diaper_change :: %DiaperChange{},
+          diaper_change :: %BabyLife.DiaperChange{},
           user_timezone :: String.t(),
           now :: DateTime.t()
         ) :: map()

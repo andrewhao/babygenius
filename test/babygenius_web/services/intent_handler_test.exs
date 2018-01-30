@@ -3,7 +3,8 @@ defmodule Babygenius.IntentHandlerTest do
   use Timex
   import Babygenius.Factory
   import Mox
-  alias BabygeniusWeb.{DiaperChange, IntentHandler}
+  alias BabygeniusWeb.{IntentHandler}
+  alias Babygenius.BabyLife.DiaperChange
 
   setup :verify_on_exit!
 

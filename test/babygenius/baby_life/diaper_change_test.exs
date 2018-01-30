@@ -1,7 +1,7 @@
-defmodule Babygenius.DiaperChangeTest do
+defmodule Babygenius.BabyLife.DiaperChangeTest do
   use Babygenius.DataCase
 
-  alias BabygeniusWeb.DiaperChange
+  alias Babygenius.BabyLife.DiaperChange
 
   @valid_attrs %{occurred_at: DateTime.utc_now(), type: "some content"}
   @invalid_attrs %{}
