@@ -6,8 +6,6 @@ defmodule Babygenius.Locality.Client do
 
   @behaviour Babygenius.Locality
 
-  import Ecto.Query, warn: true
-
   alias Babygenius.Repo
   alias Babygenius.Locality.{FetchTimezone, Setting, FetchZipcodeFromDeviceApi}
 

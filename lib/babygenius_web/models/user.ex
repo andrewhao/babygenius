@@ -13,7 +13,7 @@ defmodule BabygeniusWeb.User do
     field(:consent_token, :string)
     field(:zip_code, :string)
 
-    has_many(:diaper_changes, BabygeniusWeb.DiaperChange)
+    has_many(:diaper_changes, Babygenius.BabyLife.DiaperChange)
     timestamps()
   end
 
