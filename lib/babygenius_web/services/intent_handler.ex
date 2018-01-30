@@ -34,7 +34,7 @@ defmodule BabygeniusWeb.IntentHandler do
     end
   end
 
-  @spec get_last_diaper_change(user :: %User{}) :: %DiaperChange{}
+  @spec get_last_diaper_change(user :: %User{}) :: %DiaperChange{} | nil
   defp get_last_diaper_change(user) do
     from(d in DiaperChange, where: d.user_id == ^user.id, order_by: d.occurred_at)
     |> last
@@ -42,7 +42,7 @@ defmodule BabygeniusWeb.IntentHandler do
   end
 
   @spec last_diaper_change_text(
-          diaper_change :: nil,
+          diaper_change :: %DiaperChange{} | nil,
           user_timezone :: String.t(),
           now :: DateTime.t()
         ) :: String.t()
@@ -50,11 +50,6 @@ defmodule BabygeniusWeb.IntentHandler do
     "You have not logged any diaper changes yet"
   end
 
-  @spec last_diaper_change_text(
-          diaper_change :: %DiaperChange{},
-          user_timezone :: String.t(),
-          now :: DateTime.t()
-        ) :: String.t()
   defp last_diaper_change_text(diaper_change, user_timezone, now) do
     change_time =
       diaper_change
@@ -80,38 +75,15 @@ defmodule BabygeniusWeb.IntentHandler do
     slots = request.request.intent.slots
     diaper_type = get_in(slots, ["diaperType", "value"])
     fetched_diaper_change_date = get_in(slots, ["diaperChangeDate", "value"])
-
-    # The date must be in the user timezone
-    diaper_change_date =
-      case fetched_diaper_change_date do
-        nil ->
-          now
-          |> Timex.Timezone.convert(user_timezone)
-
-        _ ->
-          Timex.parse!(fetched_diaper_change_date, "%Y-%m-%d", :strftime)
-      end
-
     fetched_diaper_change_time = get_in(slots, ["diaperChangeTime", "value"])
 
     diaper_change_time =
-      case fetched_diaper_change_time do
-        nil ->
-          now
-
-        _ ->
-          diaper_change_date_formatted =
-            diaper_change_date |> Timex.format!("%Y-%m-%d", :strftime)
-
-          Timex.parse!(
-            "#{diaper_change_date_formatted} #{fetched_diaper_change_time}",
-            "%Y-%m-%d %H:%M",
-            :strftime
-          )
-          |> DateTime.from_naive!("Etc/UTC")
-          |> Timex.set(timezone: user_timezone)
-          |> Timex.Timezone.convert("Etc/UTC")
-      end
+      TimeUtils.utc_time_from_local_spoken_time(
+        fetched_diaper_change_time,
+        fetched_diaper_change_date,
+        user_timezone,
+        now
+      )
 
     %DiaperChange{user_id: user.id, type: diaper_type, occurred_at: diaper_change_time}
   end

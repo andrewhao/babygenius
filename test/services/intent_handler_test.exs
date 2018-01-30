@@ -5,10 +5,12 @@ defmodule Babygenius.IntentHandlerTest do
   import Mox
   alias BabygeniusWeb.{DiaperChange, IntentHandler}
 
+  setup :verify_on_exit!
+
   setup do
     Babygenius.Locality.Mock
-    |> expect(:get_timezone_for_user, fn _ -> "America/Los_Angeles" end)
-    |> expect(:process_timezone_for_user, fn _, _ -> {:ok, "pid"} end)
+    |> expect(:get_timezone_for_user, fn _user_id -> "America/Los_Angeles" end)
+    |> expect(:process_timezone_for_user, fn _user_id, _request -> {:ok, "pid"} end)
 
     {:ok, pass: "pass"}
   end
@@ -49,7 +51,7 @@ defmodule Babygenius.IntentHandlerTest do
       %{request: request_double, user: user}
     end
 
-    test "informs about no diaper changes", %{request: request, user: user} do
+    test "informs about no diaper changes", %{request: request} do
       response = IntentHandler.handle_intent("GetLastDiaperChange", request, Timex.now())
       assert response.speak_text == "You have not logged any diaper changes yet"
     end
@@ -160,8 +162,7 @@ defmodule Babygenius.IntentHandlerTest do
 
     test "it uses provided date if one is given and shifts the time zone from local timezone to UTC",
          %{
-           request: request,
-           amazon_id: amazon_id
+           request: request
          } do
       # User wants to log diaper change at 19:00 PST, 2017-09-10
       # This converts to 02:00 UTC, 2017-09-11
@@ -181,11 +182,8 @@ defmodule Babygenius.IntentHandlerTest do
         |> Map.get(:occurred_at)
 
       # assert we persisted at UTC
-      assert saved_occurred_at
-             |> Map.get(:hour) == 2
-
-      assert saved_occurred_at
-             |> Map.get(:day) == 11
+      assert saved_occurred_at.hour == 2
+      assert saved_occurred_at.day == 11
     end
 
     test "it uses the provided time if one is given, persisting in UTC (converting from local time)",
@@ -208,8 +206,7 @@ defmodule Babygenius.IntentHandlerTest do
         |> Map.get(:occurred_at)
 
       # assert we persisted at UTC
-      assert saved_occurred_at
-             |> Map.get(:hour) == 17
+      assert saved_occurred_at.hour == 17
 
       assert response.speak_text == "A wet diaper change was logged today at 9:00 AM"
     end
@@ -234,8 +231,7 @@ defmodule Babygenius.IntentHandlerTest do
         |> Map.get(:occurred_at)
 
       # assert we persisted at UTC
-      assert saved_occurred_at
-             |> Map.get(:hour) == 17
+      assert saved_occurred_at.hour == 17
 
       assert response.speak_text == "A wet diaper change was logged today at 9:00 AM"
     end
