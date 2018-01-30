@@ -10,8 +10,8 @@ defmodule Babygenius.AlexaControllerTest do
 
   setup do
     Babygenius.Locality.Mock
-    |> expect(:process_timezone_for_user, fn _, _ -> {:ok, "pid"} end)
-    |> expect(:get_timezone_for_user, fn _ -> "America/Los_Angeles" end)
+    |> stub(:process_timezone_for_user, fn _, _ -> {:ok, "pid"} end)
+    |> stub(:get_timezone_for_user, fn _ -> "America/Los_Angeles" end)
 
     {:ok, pass: "pass"}
   end
