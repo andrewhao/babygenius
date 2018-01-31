@@ -40,6 +40,8 @@ config :babygenius,
 
 config :babygenius, :locality_client, Babygenius.Locality.Client
 
+config :babygenius, :hashids_salt, System.get_env("HASHIDS_SALT")
+
 import_config "scout_apm.exs"
 
 config :babygenius, Babygenius.Repo,

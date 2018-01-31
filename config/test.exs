@@ -24,6 +24,7 @@ config :babygenius, :amazon_device_service, BabygeniusWeb.AmazonDeviceService.Mo
 config :babygenius, :zipcode_timezone_service, Babygenius.Locality.ZipcodeTimezoneService.Mock
 config :babygenius, :locality_client, Babygenius.Locality.Mock
 
+config :babygenius, :hashids_salt, "test hashid salt"
 
 config :babygenius,
        :fetch_zipcode_from_device_api,

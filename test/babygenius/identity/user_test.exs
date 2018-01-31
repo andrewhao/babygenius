@@ -33,4 +33,12 @@ defmodule Babygenius.Identity.UserTest do
 
     assert user.amazon_id == "some content"
   end
+
+  describe "#slugify" do
+    test "loads hashid slug" do
+      user = insert(:user)
+      updated_user = user |> User.slugify()
+      assert Regex.match?(~r/[\w]{3,}/, updated_user.slug)
+    end
+  end
 end

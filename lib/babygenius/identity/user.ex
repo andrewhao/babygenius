@@ -4,6 +4,7 @@ defmodule Babygenius.Identity.User do
   """
 
   use BabygeniusWeb, :model
+  alias Babygenius.Identity.HashidGenerator
 
   schema "users" do
     field(:amazon_id, :string)
@@ -11,6 +12,7 @@ defmodule Babygenius.Identity.User do
     field(:device_id, :string)
     field(:consent_token, :string)
     field(:zip_code, :string)
+    field(:slug, :string, virtual: true)
 
     has_many(:diaper_changes, Babygenius.BabyLife.DiaperChange)
     timestamps()
@@ -23,5 +25,17 @@ defmodule Babygenius.Identity.User do
     struct
     |> cast(params, [:amazon_id, :timezone_identifier, :device_id, :consent_token, :zip_code])
     |> validate_required([:amazon_id, :timezone_identifier])
+  end
+
+  @spec slugify(user :: %Babygenius.Identity.User{}) :: %Babygenius.Identity.User{
+          slug: String.t()
+        }
+  def slugify(user) do
+    user |> Map.put(:slug, generate_slug(user.id))
+  end
+
+  defp generate_slug(user_id) do
+    HashidGenerator.get_spec()
+    |> Hashids.encode([user_id])
   end
 end
