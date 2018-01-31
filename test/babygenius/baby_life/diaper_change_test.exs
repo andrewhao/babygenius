@@ -7,7 +7,7 @@ defmodule Babygenius.BabyLife.DiaperChangeTest do
   @invalid_attrs %{}
 
   setup do
-    user = %BabygeniusWeb.User{amazon_id: "asdf"} |> Repo.insert!()
+    user = %Babygenius.Identity.User{amazon_id: "asdf"} |> Repo.insert!()
     {:ok, user: user}
   end
 

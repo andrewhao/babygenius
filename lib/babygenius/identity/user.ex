@@ -1,10 +1,10 @@
-defmodule BabygeniusWeb.User do
+defmodule Babygenius.Identity.User do
   @moduledoc """
   DB representation of a user from Alexa
   """
 
   use BabygeniusWeb, :model
-  alias BabygeniusWeb.{User}
+  alias Babygenius.Identity.User
 
   schema "users" do
     field(:amazon_id, :string)

@@ -1,7 +1,7 @@
-defmodule Babygenius.UserTest do
+defmodule Babygenius.Identity.UserTest do
   use Babygenius.DataCase
 
-  alias BabygeniusWeb.User
+  alias Babygenius.Identity.User
 
   @valid_attrs %{
     amazon_id: "some content",

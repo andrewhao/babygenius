@@ -6,7 +6,7 @@ defmodule Babygenius.AlexaControllerTest do
   import Mox
 
   alias Babygenius.RequestFixtures
-  alias BabygeniusWeb.{User}
+  alias Babygenius.Identity.{User}
   alias Babygenius.BabyLife.DiaperChange
 
   setup do

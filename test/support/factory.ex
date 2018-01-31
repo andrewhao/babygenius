@@ -2,7 +2,7 @@ defmodule Babygenius.Factory do
   use ExMachina.Ecto, repo: Babygenius.Repo
   use Timex
 
-  alias BabygeniusWeb.{User}
+  alias Babygenius.Identity.{User}
   alias Babygenius.BabyLife.{DiaperChange}
 
   alias Babygenius.Locality.Setting

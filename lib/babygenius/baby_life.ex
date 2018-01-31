@@ -1,6 +1,6 @@
 defmodule Babygenius.BabyLife do
   @callback create_diaper_change(
-              user :: %BabygeniusWeb.User{},
+              user :: %Babygenius.Identity.User{},
               diaper_type :: String.t(),
               time :: String.t() | nil,
               date :: String.t() | nil,
@@ -8,6 +8,6 @@ defmodule Babygenius.BabyLife do
               now :: DateTime.t()
             ) :: %Babygenius.BabyLife.DiaperChange{}
 
-  @callback get_last_diaper_change(user :: %BabygeniusWeb.User{}) ::
+  @callback get_last_diaper_change(user :: %Babygenius.Identity.User{}) ::
               %Babygenius.BabyLife.DiaperChange{} | nil
 end
