@@ -1,7 +1,7 @@
-defmodule Babygenius.UserTest do
+defmodule Babygenius.Identity.UserTest do
   use Babygenius.DataCase
 
-  alias BabygeniusWeb.User
+  alias Babygenius.Identity.User
 
   @valid_attrs %{
     amazon_id: "some content",
@@ -32,5 +32,13 @@ defmodule Babygenius.UserTest do
     |> Repo.insert!()
 
     assert user.amazon_id == "some content"
+  end
+
+  describe "#slugify" do
+    test "loads hashid slug" do
+      user = insert(:user)
+      updated_user = user |> User.slugify()
+      assert Regex.match?(~r/[\w]{3,}/, updated_user.slug)
+    end
   end
 end

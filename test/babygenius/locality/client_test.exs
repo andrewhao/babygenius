@@ -4,11 +4,7 @@ defmodule Babygenius.Locality.ClientTest do
   alias Babygenius.Locality
 
   describe "settings" do
-    alias Babygenius.Locality.Setting
-
     @valid_attrs %{user_id: "1", timezone_identifier: "America/Los_Angeles"}
-    @update_attrs %{timezone_identifier: "America/Los_Angeles", zip_code: "94606"}
-    @invalid_attrs %{}
 
     def setting_fixture(attrs \\ %{}) do
       {:ok, setting} =

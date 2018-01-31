@@ -3,8 +3,7 @@ defmodule BabygeniusWeb.IntentHandler do
     Service module to handle incoming intents from Alexa Skills Kit
   """
   use Timex
-  alias BabygeniusWeb.{User}
-  alias Babygenius.{BabyLife, TimeUtils}
+  alias Babygenius.{BabyLife, Identity, TimeUtils}
   use BabygeniusWeb, :model
 
   @locality_client Application.get_env(:babygenius, :locality_client)
@@ -54,11 +53,13 @@ defmodule BabygeniusWeb.IntentHandler do
 
   defp find_or_create_user_from_request(request) do
     user_amazon_id = request.session.user.userId
-    %User{amazon_id: user_amazon_id} |> User.find_or_create_by_amazon_id()
+
+    %Identity.User{amazon_id: user_amazon_id}
+    |> Identity.Client.find_or_create_user_by_amazon_id()
   end
 
   @spec diaper_change_from_request(
-          user :: %User{},
+          user :: %Identity.User{},
           request :: map(),
           user_timezone :: String.t(),
           now :: DateTime.t()

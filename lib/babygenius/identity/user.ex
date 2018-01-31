@@ -1,10 +1,10 @@
-defmodule BabygeniusWeb.User do
+defmodule Babygenius.Identity.User do
   @moduledoc """
   DB representation of a user from Alexa
   """
 
   use BabygeniusWeb, :model
-  alias BabygeniusWeb.{User}
+  alias Babygenius.Identity.HashidGenerator
 
   schema "users" do
     field(:amazon_id, :string)
@@ -12,6 +12,7 @@ defmodule BabygeniusWeb.User do
     field(:device_id, :string)
     field(:consent_token, :string)
     field(:zip_code, :string)
+    field(:slug, :string, virtual: true)
 
     has_many(:diaper_changes, Babygenius.BabyLife.DiaperChange)
     timestamps()
@@ -26,8 +27,15 @@ defmodule BabygeniusWeb.User do
     |> validate_required([:amazon_id, :timezone_identifier])
   end
 
-  def find_or_create_by_amazon_id(user) do
-    query = from(u in User, where: u.amazon_id == ^user.amazon_id)
-    Babygenius.Repo.one(query) || Babygenius.Repo.insert!(user)
+  @spec slugify(user :: %Babygenius.Identity.User{}) :: %Babygenius.Identity.User{
+          slug: String.t()
+        }
+  def slugify(user) do
+    user |> Map.put(:slug, generate_slug(user.id))
+  end
+
+  defp generate_slug(user_id) do
+    HashidGenerator.get_spec()
+    |> Hashids.encode([user_id])
   end
 end

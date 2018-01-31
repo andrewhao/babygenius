@@ -11,8 +11,8 @@ defmodule Babygenius.FetchZipcodeFromDeviceApi.LiveTest do
 
     BabygeniusWeb.AmazonDeviceService.Mock
     |> expect(:country_and_zip_code, fn _device, _consent ->
-         %{"postalCode" => expected_zip_code}
-       end)
+      %{"postalCode" => expected_zip_code}
+    end)
 
     {:ok, user: user, expected_zip_code: expected_zip_code}
   end
@@ -74,7 +74,7 @@ defmodule Babygenius.FetchZipcodeFromDeviceApi.LiveTest do
 
       old_count = Repo.aggregate(from(p in "locality_settings"), :count, :id)
 
-      {:ok, result} = Live.perform(user.id, "1234", "consent_token", fn _, _ -> nil end)
+      {:ok, _result} = Live.perform(user.id, "1234", "consent_token", fn _, _ -> nil end)
 
       new_count = Repo.aggregate(from(p in "locality_settings"), :count, :id)
 

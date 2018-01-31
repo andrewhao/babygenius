@@ -22,6 +22,7 @@ defmodule Babygenius.DataCase do
       import Ecto.Changeset
       import Ecto.Query
       import Babygenius.DataCase
+      import Babygenius.Factory
     end
   end
 

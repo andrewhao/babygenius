@@ -10,7 +10,7 @@ defmodule Babygenius.BabyLife.DiaperChange do
     field(:type, :string)
     field(:occurred_at, :utc_datetime)
 
-    belongs_to(:user, BabygeniusWeb.User)
+    belongs_to(:user, Babygenius.Identity.User)
 
     timestamps(type: :utc_datetime)
   end
