@@ -4,7 +4,6 @@ defmodule Babygenius.Identity.User do
   """
 
   use BabygeniusWeb, :model
-  alias Babygenius.Identity.User
 
   schema "users" do
     field(:amazon_id, :string)
@@ -24,10 +23,5 @@ defmodule Babygenius.Identity.User do
     struct
     |> cast(params, [:amazon_id, :timezone_identifier, :device_id, :consent_token, :zip_code])
     |> validate_required([:amazon_id, :timezone_identifier])
-  end
-
-  def find_or_create_by_amazon_id(user) do
-    query = from(u in User, where: u.amazon_id == ^user.amazon_id)
-    Babygenius.Repo.one(query) || Babygenius.Repo.insert!(user)
   end
 end

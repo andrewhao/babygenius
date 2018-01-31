@@ -53,7 +53,9 @@ defmodule BabygeniusWeb.IntentHandler do
 
   defp find_or_create_user_from_request(request) do
     user_amazon_id = request.session.user.userId
-    %Identity.User{amazon_id: user_amazon_id} |> Identity.User.find_or_create_by_amazon_id()
+
+    %Identity.User{amazon_id: user_amazon_id}
+    |> Identity.Client.find_or_create_user_by_amazon_id()
   end
 
   @spec diaper_change_from_request(
