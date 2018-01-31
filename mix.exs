@@ -72,7 +72,8 @@ defmodule Babygenius.Mixfile do
       {:scout_apm, "~> 0.0"},
       {:mix_test_watch, "~> 0.5", only: :dev, runtime: false},
       {:exactor, "~> 2.2.4", warn_missing: false},
-      {:sentry, "~> 6.0.4"}
+      {:sentry, "~> 6.0.4"},
+      {:hashids, "~> 2.0"}
     ]
   end
 
