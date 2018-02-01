@@ -1,10 +1,10 @@
-defmodule Babygenius.Locality.Client do
+defmodule Babygenius.Locality do
   @moduledoc """
   The Locality context. This manages concerns around a user's location, and their
   associated implications around time zones.
   """
 
-  @behaviour Babygenius.Locality
+  @behaviour Babygenius.Locality.Behaviour
 
   alias Babygenius.Repo
   alias Babygenius.Locality.{FetchTimezone, Setting, FetchZipcodeFromDeviceApi}
