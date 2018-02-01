@@ -10,7 +10,7 @@ defmodule Babygenius.UserEventsTest do
 
     page_text =
       session
-      |> visit("/users/#{user.slug}")
+      |> visit("/u/#{user.slug}")
       |> text()
 
     assert page_text =~ "Welcome"
