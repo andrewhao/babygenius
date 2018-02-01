@@ -89,6 +89,17 @@ defmodule Babygenius.BabyLife.Client do
 
   @impl true
   def list_events_for_user(user) do
+    diaper_changes =
+      from(dc in DiaperChange, where: dc.user_id == ^user.id)
+      |> Repo.all()
 
+    feedings =
+      from(f in Feeding, where: f.user_id == ^user.id)
+      |> Repo.all()
+
+    diaper_changes
+    |> Enum.concat(feedings)
+    |> Enum.sort_by(& &1.occurred_at)
+    |> Enum.reverse()
   end
 end

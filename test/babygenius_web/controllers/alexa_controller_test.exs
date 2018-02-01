@@ -152,7 +152,7 @@ defmodule Babygenius.AlexaControllerTest do
 
   describe "AddFeeding intent_request/3" do
     setup do
-      user = insert(:user, amazon_id: AddFeedingRequestFixture.amazon_id())
+      insert(:user, amazon_id: AddFeedingRequestFixture.amazon_id())
 
       request =
         build_conn()
@@ -184,7 +184,7 @@ defmodule Babygenius.AlexaControllerTest do
         |> json_response(200)
 
       assert get_in(response, ["response", "outputSpeech", "text"]) ==
-        "A bottle has been logged for December 25th at 4:00 AM"
+               "A bottle has been logged for December 25th at 4:00 AM"
     end
   end
 end

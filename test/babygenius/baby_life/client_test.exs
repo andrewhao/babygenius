@@ -56,10 +56,39 @@ defmodule Babygenius.ClientTest do
 
     test "returns a combined list of events for user", %{user: user} do
       dc = insert(:diaper_change, user: user)
+      feed = insert(:feeding, user: user)
 
+      assert BabyLife.Client.list_events_for_user(user)
+             |> Enum.map(&sort_by_attr/1) == [feed, dc] |> Enum.map(&sort_by_attr/1)
     end
 
     test "excludes events that do not correspond to user", %{user: user} do
+      user2 = insert(:user)
+      dc = insert(:diaper_change, user: user)
+      insert(:diaper_change, user: user2)
+
+      assert BabyLife.Client.list_events_for_user(user) |> Enum.map(&sort_by_attr/1) ==
+               [dc] |> Enum.map(&sort_by_attr/1)
     end
+
+    test "returns empty list if no matches found", %{user: user} do
+      assert BabyLife.Client.list_events_for_user(user) == []
+    end
+
+    test "returns list reverse-ordered by occurrence date", %{user: user} do
+      time1 = DateTime.utc_now() |> Timex.set(year: 2015)
+      time2 = time1 |> Timex.set(year: 2016)
+      time3 = time2 |> Timex.set(year: 2017)
+      dc = insert(:diaper_change, user: user, occurred_at: time3)
+      feeding = insert(:feeding, user: user, occurred_at: time2)
+      feeding2 = insert(:feeding, user: user, occurred_at: time1)
+
+      assert BabyLife.Client.list_events_for_user(user)
+             |> Enum.map(&sort_by_attr/1) == [dc, feeding, feeding2] |> Enum.map(&sort_by_attr/1)
+    end
+  end
+
+  defp sort_by_attr(struct) do
+    [struct.id, struct.occurred_at]
   end
 end

@@ -26,4 +26,6 @@ defmodule Babygenius.BabyLife do
             ) :: %Feeding{}
 
   @callback change_feeding(feeding :: %Feeding{}) :: %Ecto.Changeset{}
+
+  @callback list_events_for_user(user :: %User{}) :: [%Feeding{} | %DiaperChange{} | nil]
 end
