@@ -23,6 +23,7 @@ config :babygenius, :sql_sandbox, true
 config :babygenius, :amazon_device_service, BabygeniusWeb.AmazonDeviceService.Mock
 config :babygenius, :zipcode_timezone_service, Babygenius.Locality.ZipcodeTimezoneService.Mock
 config :babygenius, :locality_client, Babygenius.Locality.Mock
+config :babygenius, :baby_life_client, Babygenius.BabyLife.Mock
 
 config :babygenius, :hashids_salt, "test hashid salt"
 

@@ -73,7 +73,8 @@ defmodule Babygenius.Mixfile do
       {:mix_test_watch, "~> 0.5", only: :dev, runtime: false},
       {:exactor, "~> 2.2.4", warn_missing: false},
       {:sentry, "~> 6.0.4"},
-      {:hashids, "~> 2.0"}
+      {:hashids, "~> 2.0"},
+      {:morphix, "~> 0.2.1"}
     ]
   end
 

@@ -12,7 +12,6 @@ defmodule Babygenius.Locality.FetchTimezone do
   def run(zipcode, setting) do
     @zipcode_timezone_service.fetch_zipcode(zipcode)
     |> Map.get(:timezone)
-    |> IO.inspect(label: "Timezone fetched is")
     |> setting_changeset(setting)
     |> Repo.update!()
   end

@@ -1,13 +1,29 @@
 defmodule Babygenius.BabyLife do
+  alias Babygenius.Identity.{User}
+  alias Babygenius.BabyLife.{DiaperChange, Feeding}
+
   @callback create_diaper_change(
-              user :: %Babygenius.Identity.User{},
+              user :: %User{},
               diaper_type :: String.t(),
               time :: String.t() | nil,
               date :: String.t() | nil,
               user_timezone :: String.t(),
               now :: DateTime.t()
-            ) :: %Babygenius.BabyLife.DiaperChange{}
+            ) :: %DiaperChange{}
 
-  @callback get_last_diaper_change(user :: %Babygenius.Identity.User{}) ::
-              %Babygenius.BabyLife.DiaperChange{} | nil
+  @callback get_last_diaper_change(user :: %User{}) :: %DiaperChange{} | nil
+
+  @callback create_feeding(
+              %{
+                user: %User{},
+                feed_type: String.t(),
+                volume: integer(),
+                unit: String.t(),
+                time: String.t() | nil,
+                date: String.t() | nil
+              },
+              now :: DateTime.t()
+            ) :: %Feeding{}
+
+  @callback change_feeding(feeding :: %Feeding{}) :: %Ecto.Changeset{}
 end

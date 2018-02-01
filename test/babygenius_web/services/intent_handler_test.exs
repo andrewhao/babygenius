@@ -10,8 +10,8 @@ defmodule Babygenius.IntentHandlerTest do
 
   setup do
     Babygenius.Locality.Mock
-    |> expect(:get_timezone_for_user, fn _user_id -> "America/Los_Angeles" end)
-    |> expect(:process_timezone_for_user, fn _user_id, _request -> {:ok, "pid"} end)
+    |> stub(:get_timezone_for_user, fn _user_id -> "America/Los_Angeles" end)
+    |> stub(:process_timezone_for_user, fn _user_id, _request -> {:ok, "pid"} end)
 
     {:ok, pass: "pass"}
   end
@@ -235,6 +235,34 @@ defmodule Babygenius.IntentHandlerTest do
       assert saved_occurred_at.hour == 17
 
       assert response.speak_text == "A wet diaper change was logged today at 9:00 AM"
+    end
+  end
+
+  describe "handle_intent/2 for AddFeeding" do
+    setup do
+      amazon_id = "amzn1.ask.account.SOME_ID"
+
+      occurred_at = Timex.now()
+                    |> Timex.set(year: 2017, month: 12, day: 25, hour: 12, minute: 0)
+      feeding = insert(:feeding, feed_type: "feeding", occurred_at: occurred_at)
+      request = Babygenius.AddFeedingRequestFixture.as_map()
+
+      %{request: request, amazon_id: amazon_id, feeding: feeding}
+    end
+
+    test "it adds a feeding", %{request: request, feeding: feeding} do
+      Babygenius.BabyLife.Mock
+      |> expect(:create_feeding, fn _, _ -> {:ok, feeding} end)
+
+      IntentHandler.handle_intent("AddFeeding", request, DateTime.utc_now())
+    end
+
+    test "it returns a confirmation message", %{request: request, feeding: feeding} do
+      Babygenius.BabyLife.Mock
+      |> stub(:create_feeding, fn _, _ -> {:ok, feeding} end)
+
+      response = IntentHandler.handle_intent("AddFeeding", request, DateTime.utc_now())
+      assert response.speak_text == "A feeding has been logged for December 25th at 4:00 AM"
     end
   end
 end
