@@ -21,7 +21,7 @@ else
   exit 1
 fi
 
-COMMAND='ask baby genius to log a feeding 9 oclock last  saturday'
+COMMAND='ask baby genius to log a feeding 9 oclock last saturday'
 if ./assets/node_modules/.bin/ask simulate -t "$COMMAND" -l "en-US" -s $ALEXA_APPLICATION_ID | grep -q 'AddFeeding'; then
   echo "...OK"
   echo "Passed $COMMAND"

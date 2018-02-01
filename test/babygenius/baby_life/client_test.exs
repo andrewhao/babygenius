@@ -47,4 +47,19 @@ defmodule Babygenius.ClientTest do
       assert %Ecto.Changeset{} = BabyLife.Client.change_feeding(feeding)
     end
   end
+
+  describe "list_events_for_user/1" do
+    setup do
+      user = insert(:user)
+      %{user: user}
+    end
+
+    test "returns a combined list of events for user", %{user: user} do
+      dc = insert(:diaper_change, user: user)
+
+    end
+
+    test "excludes events that do not correspond to user", %{user: user} do
+    end
+  end
 end

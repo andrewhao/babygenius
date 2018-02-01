@@ -86,4 +86,9 @@ defmodule Babygenius.BabyLife.Client do
   def change_feeding(%Feeding{} = feeding) do
     Feeding.changeset(feeding, %{})
   end
+
+  @impl true
+  def list_events_for_user(user) do
+
+  end
 end
