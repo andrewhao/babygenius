@@ -1,4 +1,4 @@
-defmodule Babygenius.Identity do
+defmodule Babygenius.Identity.Behaviour do
   @moduledoc """
   Public interface to the Identity context.
 

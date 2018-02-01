@@ -109,7 +109,7 @@ defmodule BabygeniusWeb.IntentHandler do
     user_amazon_id = request.session.user.userId
 
     %Identity.User{amazon_id: user_amazon_id}
-    |> Identity.Client.find_or_create_user_by_amazon_id()
+    |> Identity.find_or_create_user_by_amazon_id()
   end
 
   @spec diaper_change_from_request(

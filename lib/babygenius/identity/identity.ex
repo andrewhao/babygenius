@@ -1,5 +1,5 @@
-defmodule Babygenius.Identity.Client do
-  @behaviour Babygenius.Identity
+defmodule Babygenius.Identity do
+  @behaviour Babygenius.Identity.Behaviour
 
   alias Babygenius.Identity.User
   import Ecto.Query
