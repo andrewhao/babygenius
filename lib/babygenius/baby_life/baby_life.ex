@@ -1,10 +1,10 @@
-defmodule Babygenius.BabyLife.Client do
+defmodule Babygenius.BabyLife do
   @moduledoc """
   Context encapsulating the logging, recording, and aggregate reporting of
   a baby-centered set of events
   """
 
-  @behaviour Babygenius.BabyLife
+  @behaviour Babygenius.BabyLife.Behaviour
 
   alias Babygenius.BabyLife.{DiaperChange, Feeding}
   alias Babygenius.{Repo, TimeUtils}

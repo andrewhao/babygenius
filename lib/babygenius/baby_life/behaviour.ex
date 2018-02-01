@@ -1,4 +1,4 @@
-defmodule Babygenius.BabyLife do
+defmodule Babygenius.BabyLife.Behaviour do
   alias Babygenius.Identity.{User}
   alias Babygenius.BabyLife.{DiaperChange, Feeding}
 

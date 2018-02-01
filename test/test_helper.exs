@@ -26,6 +26,6 @@ Mox.defmock(
 )
 
 Mox.defmock(Babygenius.Locality.Mock, for: Babygenius.Locality)
-Mox.defmock(Babygenius.BabyLife.Mock, for: Babygenius.BabyLife)
+Mox.defmock(Babygenius.BabyLife.Mock, for: Babygenius.BabyLife.Behaviour)
 
 {:ok, _} = Application.ensure_all_started(:mox)

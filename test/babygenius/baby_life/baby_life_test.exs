@@ -1,4 +1,4 @@
-defmodule Babygenius.ClientTest do
+defmodule Babygenius.BabyLifeTest do
   use Babygenius.DataCase
 
   alias Babygenius.BabyLife
@@ -13,7 +13,7 @@ defmodule Babygenius.ClientTest do
 
     def feeding_fixture(attrs \\ %{}) do
       {:ok, feeding} =
-        BabyLife.Client.create_feeding(%{
+        BabyLife.create_feeding(%{
           user: attrs.user,
           feed_type: "some feed_type",
           unit: "MLs",
@@ -27,7 +27,7 @@ defmodule Babygenius.ClientTest do
 
     test "create_feeding/2 with valid data creates a feeding", %{user: user} do
       assert {:ok, %Feeding{} = feeding} =
-               BabyLife.Client.create_feeding(%{
+               BabyLife.create_feeding(%{
                  user: user,
                  feed_type: "some feed_type",
                  unit: "MLs",
@@ -44,7 +44,7 @@ defmodule Babygenius.ClientTest do
 
     test "change_feeding/1 returns a feeding changeset", %{user: user} do
       feeding = feeding_fixture(%{user: user})
-      assert %Ecto.Changeset{} = BabyLife.Client.change_feeding(feeding)
+      assert %Ecto.Changeset{} = BabyLife.change_feeding(feeding)
     end
   end
 
@@ -58,7 +58,7 @@ defmodule Babygenius.ClientTest do
       dc = insert(:diaper_change, user: user)
       feed = insert(:feeding, user: user)
 
-      assert BabyLife.Client.list_events_for_user(user)
+      assert BabyLife.list_events_for_user(user)
              |> Enum.map(&sort_by_attr/1) == [feed, dc] |> Enum.map(&sort_by_attr/1)
     end
 
@@ -67,12 +67,12 @@ defmodule Babygenius.ClientTest do
       dc = insert(:diaper_change, user: user)
       insert(:diaper_change, user: user2)
 
-      assert BabyLife.Client.list_events_for_user(user) |> Enum.map(&sort_by_attr/1) ==
+      assert BabyLife.list_events_for_user(user) |> Enum.map(&sort_by_attr/1) ==
                [dc] |> Enum.map(&sort_by_attr/1)
     end
 
     test "returns empty list if no matches found", %{user: user} do
-      assert BabyLife.Client.list_events_for_user(user) == []
+      assert BabyLife.list_events_for_user(user) == []
     end
 
     test "returns list reverse-ordered by occurrence date", %{user: user} do
@@ -83,7 +83,7 @@ defmodule Babygenius.ClientTest do
       feeding = insert(:feeding, user: user, occurred_at: time2)
       feeding2 = insert(:feeding, user: user, occurred_at: time1)
 
-      assert BabyLife.Client.list_events_for_user(user)
+      assert BabyLife.list_events_for_user(user)
              |> Enum.map(&sort_by_attr/1) == [dc, feeding, feeding2] |> Enum.map(&sort_by_attr/1)
     end
   end
