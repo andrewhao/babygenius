@@ -6,7 +6,7 @@ defmodule Babygenius.BabyLife.Client do
 
   @behaviour Babygenius.BabyLife
 
-  alias Babygenius.BabyLife.DiaperChange
+  alias Babygenius.BabyLife.{DiaperChange, Feeding}
   alias Babygenius.{Repo, TimeUtils}
   import Ecto.Query
 
@@ -29,5 +29,61 @@ defmodule Babygenius.BabyLife.Client do
     from(d in DiaperChange, where: d.user_id == ^user.id, order_by: d.occurred_at)
     |> last
     |> Repo.one()
+  end
+
+  @doc """
+  Creates a feeding.
+
+  ## Examples
+
+      iex> create_feeding(%{field: value})
+      {:ok, %Feeding{}}
+
+      iex> create_feeding(%{field: bad_value})
+      {:error, %Ecto.Changeset{}}
+
+  """
+  @impl true
+  def create_feeding(
+        %{
+          user: user,
+          feed_type: feed_type,
+          volume: volume,
+          unit: units,
+          time: time,
+          date: date
+        } = attrs,
+        now \\ Timex.now()
+      ) do
+    attrs =
+      attrs
+      |> Map.put(
+        :occurred_at,
+        Babygenius.TimeUtils.utc_time_from_local_spoken_time(
+          time,
+          date,
+          "Etc/UTC",
+          now
+        )
+      )
+      |> Map.put(:user_id, user.id)
+
+    %Feeding{}
+    |> Feeding.changeset(attrs)
+    |> Repo.insert()
+  end
+
+  @doc """
+  Returns an `%Ecto.Changeset{}` for tracking feeding changes.
+
+  ## Examples
+
+      iex> change_feeding(feeding)
+      %Ecto.Changeset{source: %Feeding{}}
+
+  """
+  @impl true
+  def change_feeding(%Feeding{} = feeding) do
+    Feeding.changeset(feeding, %{})
   end
 end

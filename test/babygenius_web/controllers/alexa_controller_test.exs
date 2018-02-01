@@ -5,7 +5,7 @@ defmodule Babygenius.AlexaControllerTest do
 
   import Mox
 
-  alias Babygenius.RequestFixtures
+  alias Babygenius.{RequestFixtures, AddFeedingRequestFixture}
   alias Babygenius.Identity.{User}
   alias Babygenius.BabyLife.DiaperChange
 
@@ -147,6 +147,44 @@ defmodule Babygenius.AlexaControllerTest do
                "Welcome to Babygenius. What would you like to log today? You can log a feeding, or a diaper change. For help, say Help."
 
       assert response["response"]["shouldEndSession"] == false
+    end
+  end
+
+  describe "AddFeeding intent_request/3" do
+    setup do
+      user = insert(:user, amazon_id: AddFeedingRequestFixture.amazon_id())
+
+      request =
+        build_conn()
+        |> put_req_header("accept", "application/json")
+        |> put_req_header("content-type", "application/json")
+
+      occurred_at = Timex.now() |> Timex.set(month: 12, day: 25, hour: 12, minute: 0)
+      feeding = insert(:feeding, occurred_at: occurred_at)
+
+      Babygenius.BabyLife.Mock
+      |> expect(:create_feeding, fn _, _ -> {:ok, feeding} end)
+
+      {:ok, request: request, json: AddFeedingRequestFixture.as_json()}
+    end
+
+    test "responds with shouldEndSession true", %{request: request, json: json} do
+      response =
+        request
+        |> post(alexa_path(build_conn(), :command), json)
+        |> json_response(200)
+
+      assert response["response"]["shouldEndSession"] == true
+    end
+
+    test "responds with confirmation text", %{request: request, json: json} do
+      response =
+        request
+        |> post(alexa_path(build_conn(), :command), json)
+        |> json_response(200)
+
+      assert get_in(response, ["response", "outputSpeech", "text"]) ==
+        "A bottle has been logged for December 25th at 4:00 AM"
     end
   end
 end

@@ -3,7 +3,7 @@ defmodule Babygenius.Factory do
   use Timex
 
   alias Babygenius.Identity.{User}
-  alias Babygenius.BabyLife.{DiaperChange}
+  alias Babygenius.BabyLife.{DiaperChange, Feeding}
 
   alias Babygenius.Locality.Setting
 
@@ -18,7 +18,17 @@ defmodule Babygenius.Factory do
     %DiaperChange{
       user: build(:user),
       type: "wet",
-      occurred_at: Timex.now()
+      occurred_at: DateTime.utc_now()
+    }
+  end
+
+  def feeding_factory do
+    %Feeding{
+      user: build(:user),
+      feed_type: "bottle",
+      volume: 60.0,
+      unit: "ml",
+      occurred_at: DateTime.utc_now()
     }
   end
 
