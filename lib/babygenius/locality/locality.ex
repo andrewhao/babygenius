@@ -9,8 +9,8 @@ defmodule Babygenius.Locality do
   alias Babygenius.Repo
   alias Babygenius.Locality.{FetchTimezone, Setting, FetchZipcodeFromDeviceApi}
 
-  @spec process_timezone_for_user(user_id :: String.t(), request :: map()) :: {:ok, pid}
-  def process_timezone_for_user(user_id, request) do
+  @spec trigger_zipcode_lookup(user_id :: String.t(), request :: map()) :: {:ok, pid}
+  def trigger_zipcode_lookup(user_id, request) do
     Task.Supervisor.start_child(Babygenius.TaskSupervisor, fn ->
       FetchZipcodeFromDeviceApi.Live.perform(user_id, request)
     end)
