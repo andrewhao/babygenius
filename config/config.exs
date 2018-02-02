@@ -12,7 +12,8 @@ config :babygenius, ecto_repos: [Babygenius.Repo]
 config :babygenius, BabygeniusWeb.Endpoint,
   url: [host: "localhost"],
   render_errors: [view: BabygeniusWeb.ErrorView, accepts: ~w(html json)],
-  pubsub: [name: Babygenius.PubSub, adapter: Phoenix.PubSub.PG2]
+  pubsub: [name: Babygenius.PubSub, adapter: Phoenix.PubSub.PG2],
+  reloadable_compilers: [:gettext, :phoenix, :elixir]
 
 # Configures Elixir's Logger
 config :logger, :console,
