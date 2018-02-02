@@ -1,12 +1,12 @@
-defmodule Babygenius.BabyLife.Client do
+defmodule Babygenius.BabyLife do
   @moduledoc """
   Context encapsulating the logging, recording, and aggregate reporting of
   a baby-centered set of events
   """
 
-  @behaviour Babygenius.BabyLife
+  @behaviour Babygenius.BabyLife.Behaviour
 
-  alias Babygenius.BabyLife.{DiaperChange, Feeding}
+  alias Babygenius.BabyLife.{DiaperChange, Feeding, Event}
   alias Babygenius.{Repo, TimeUtils}
   import Ecto.Query
 
@@ -85,5 +85,22 @@ defmodule Babygenius.BabyLife.Client do
   @impl true
   def change_feeding(%Feeding{} = feeding) do
     Feeding.changeset(feeding, %{})
+  end
+
+  @impl true
+  def list_events_for_user(user) do
+    diaper_changes =
+      from(dc in DiaperChange, where: dc.user_id == ^user.id)
+      |> Repo.all()
+
+    feedings =
+      from(f in Feeding, where: f.user_id == ^user.id)
+      |> Repo.all()
+
+    diaper_changes
+    |> Enum.concat(feedings)
+    |> Enum.sort_by(& &1.occurred_at)
+    |> Enum.reverse()
+    |> Enum.map(&Event.create_from/1)
   end
 end

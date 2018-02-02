@@ -61,7 +61,7 @@ defmodule Babygenius.Mixfile do
       {:phoenix_slime, "~> 0.8.0"},
       {:timex, "~> 3.0"},
       {:timex_ecto, "~> 3.0"},
-      {:wallaby, "~> 0.14.0", only: :test},
+      {:wallaby, "~> 0.19", only: :test},
       {:ex_machina, "~> 1.0", only: :test},
       {:phoenix_alexa, "~> 0.2.0", github: "andrewhao/phoenix_alexa"},
       {:less_verifies_alexa, "~> 0.1.0"},

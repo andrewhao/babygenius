@@ -38,8 +38,8 @@ config :babygenius,
        :zipcode_timezone_service,
        Babygenius.Locality.ZipcodeTimezoneService.HttpClient
 
-config :babygenius, :locality_client, Babygenius.Locality.Client
-config :babygenius, :baby_life_client, Babygenius.BabyLife.Client
+config :babygenius, :locality_client, Babygenius.Locality
+config :babygenius, :baby_life_client, Babygenius.BabyLife
 
 config :babygenius, :hashids_salt, System.get_env("HASHIDS_SALT")
 

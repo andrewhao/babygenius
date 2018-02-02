@@ -17,7 +17,7 @@ defmodule BabygeniusWeb.IntentHandler do
 
     with {:ok, _} <- @locality_client.process_timezone_for_user(user.id, request),
          user_local_timezone <- @locality_client.get_timezone_for_user(user.id) do
-      BabyLife.Client.get_last_diaper_change(user)
+      BabyLife.get_last_diaper_change(user)
       |> last_diaper_change_text(user_local_timezone, now)
       |> (&%{speak_text: &1, should_end_session: true}).()
     end
@@ -45,6 +45,7 @@ defmodule BabygeniusWeb.IntentHandler do
         {:ok, feeding} ->
           feeding
           |> feeding_created_speech(user_local_timezone, now)
+
         {:error, _} ->
           "Uh oh"
       end
@@ -62,6 +63,7 @@ defmodule BabygeniusWeb.IntentHandler do
       |> Map.get(:occurred_at)
       |> Timex.Timezone.convert(user_timezone)
       |> TimeUtils.formatted_time(now |> Timex.Timezone.convert(user_timezone))
+
     "A #{feeding.feed_type} has been logged for #{feeding_time}"
   end
 
@@ -107,7 +109,7 @@ defmodule BabygeniusWeb.IntentHandler do
     user_amazon_id = request.session.user.userId
 
     %Identity.User{amazon_id: user_amazon_id}
-    |> Identity.Client.find_or_create_user_by_amazon_id()
+    |> Identity.find_or_create_user_by_amazon_id()
   end
 
   @spec diaper_change_from_request(
@@ -122,7 +124,7 @@ defmodule BabygeniusWeb.IntentHandler do
     fetched_diaper_change_date = get_in(slots, ["diaperChangeDate", "value"])
     fetched_diaper_change_time = get_in(slots, ["diaperChangeTime", "value"])
 
-    BabyLife.Client.create_diaper_change(
+    BabyLife.create_diaper_change(
       user,
       diaper_type,
       fetched_diaper_change_time,

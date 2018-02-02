@@ -1,4 +1,4 @@
-defmodule Babygenius.Locality.ClientTest do
+defmodule Babygenius.LocalityTest do
   use Babygenius.DataCase
 
   alias Babygenius.Locality
@@ -10,7 +10,7 @@ defmodule Babygenius.Locality.ClientTest do
       {:ok, setting} =
         attrs
         |> Enum.into(@valid_attrs)
-        |> Locality.Client.create_setting()
+        |> Locality.create_setting()
 
       setting
     end
@@ -18,12 +18,12 @@ defmodule Babygenius.Locality.ClientTest do
     test "get_timezone_for_user/1 returns a user's timezone if it exists" do
       setting = setting_fixture()
       expected_timezone = "America/Los_Angeles"
-      assert Locality.Client.get_timezone_for_user(setting.user_id) == expected_timezone
+      assert Locality.get_timezone_for_user(setting.user_id) == expected_timezone
     end
 
     test "returns Etc/UTC if the user does not have an existing Setting" do
       expected_timezone = "Etc/UTC"
-      assert Locality.Client.get_timezone_for_user("999") == expected_timezone
+      assert Locality.get_timezone_for_user("999") == expected_timezone
     end
   end
 end

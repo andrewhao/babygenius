@@ -1,4 +1,4 @@
-defmodule Babygenius.Locality do
+defmodule Babygenius.Locality.Behaviour do
   @moduledoc """
   The interface to the Locality context boundary (client)
   """

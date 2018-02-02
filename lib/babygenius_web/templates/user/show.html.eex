@@ -1,0 +1,57 @@
+<h2>Baby Genius for User <%= @user.slug %></h2>
+
+<table class="table">
+  <tr>
+    <th>id</th>
+    <td><%= @user.id %></td>
+  </tr>
+  <tr>
+    <th>slug</th>
+    <td><%= @user.slug %></td>
+  </tr>
+  <tr>
+    <th>amazon_id</th>
+    <td><%= @user.amazon_id %></td>
+  </tr>
+  <tr>
+    <th>timezone_identifier</th>
+    <td><%= @user.timezone_identifier %></td>
+  </tr>
+  <tr>
+    <th>zip_code</th>
+    <td><%= @user.zip_code %></td>
+  </tr>
+  <tr>
+    <th>device_id</th>
+    <td><%= @user.device_id %></td>
+  </tr>
+  <tr>
+    <th>consent_token</th>
+    <td><%= @user.consent_token %></td>
+  </tr>
+  <tr>
+    <th>inserted_at</th>
+    <td><%= @user.inserted_at |> Timex.format!("{relative}", :relative) %></td>
+  </tr>
+  <tr>
+    <th>updated_at</th>
+    <td><%= @user.updated_at |> Timex.format!("{relative}", :relative) %></td>
+  </tr>
+</table>
+
+<h3>Events</h3>
+
+<table class="table">
+  <thead>
+    <th>Type</th>
+    <th>Occurred At</th>
+  </thead>
+  <tbody>
+  <%= for event <- @events do %>
+    <tr>
+      <td><%= event.event_type %></td>
+      <td><%= event.occurred_at %>
+    </tr>
+  <% end %>
+  </tbody>
+</table>

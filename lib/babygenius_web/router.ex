@@ -20,6 +20,7 @@ defmodule BabygeniusWeb.Router do
     pipe_through(:browser)
 
     get("/", PageController, :index)
+    resources("/u", UserController)
   end
 
   # Other scopes may use custom stacks.

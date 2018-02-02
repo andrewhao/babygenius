@@ -11,6 +11,7 @@ defmodule Babygenius.AcceptanceCase do
       import Ecto.Query
 
       import BabygeniusWeb.Router.Helpers
+      import Babygenius.Factory
     end
   end
 
