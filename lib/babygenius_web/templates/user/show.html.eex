@@ -43,14 +43,20 @@
 
 <table class="table">
   <thead>
+    <th>Event</th>
     <th>Type</th>
+    <th>Details</th>
     <th>Occurred At</th>
+    <th>Raw Occurred At</th>
   </thead>
   <tbody>
   <%= for event <- @events do %>
     <tr>
+      <td><%= event.event_name %></td>
       <td><%= event.event_type %></td>
-      <td><%= event.occurred_at %>
+      <td><%= event.event_details %></td>
+      <td><%= event.human_occurred_at %></td>
+      <td><%= event.occurred_at %></td>
     </tr>
   <% end %>
   </tbody>
