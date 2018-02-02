@@ -36,10 +36,20 @@ defmodule Babygenius.BabyLife.Event do
           nil
       end
 
+    event_details =
+      case source_event do
+        %Feeding{} ->
+          "#{source_event.volume} #{source_event.unit}"
+
+        _ ->
+          nil
+      end
+
     Map.from_struct(source_event)
     |> (&struct(Event, &1)).()
     |> Map.put(:event_name, event_name)
     |> Map.put(:event_type, event_type)
+    |> Map.put(:event_details, event_details)
     |> Map.put(:human_occurred_at, human_occurred_at)
   end
 end

@@ -21,7 +21,7 @@ defmodule Babygenius.UserEventsTest do
       |> text()
 
     assert page_text =~ "Baby Genius for User #{user.slug}"
-    assert page_text =~ "DiaperChange"
+    assert page_text =~ "Diaper Change"
     assert page_text =~ "Feeding"
   end
 end
