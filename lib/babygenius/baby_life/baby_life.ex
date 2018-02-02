@@ -6,7 +6,7 @@ defmodule Babygenius.BabyLife do
 
   @behaviour Babygenius.BabyLife.Behaviour
 
-  alias Babygenius.BabyLife.{DiaperChange, Feeding}
+  alias Babygenius.BabyLife.{DiaperChange, Feeding, Event}
   alias Babygenius.{Repo, TimeUtils}
   import Ecto.Query
 
@@ -101,5 +101,6 @@ defmodule Babygenius.BabyLife do
     |> Enum.concat(feedings)
     |> Enum.sort_by(& &1.occurred_at)
     |> Enum.reverse()
+    |> Enum.map(&Event.create_from/1)
   end
 end

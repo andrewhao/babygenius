@@ -1,9 +1,7 @@
 defmodule Babygenius.Identity.Behaviour do
-  @moduledoc """
-  Public interface to the Identity context.
+  alias Babygenius.Identity.User
 
-  This stores user account-related information
-  """
-  @callback find_or_create_user_by_amazon_id(user :: %Babygenius.Identity.User{}) ::
-              %Babygenius.Identity.User{}
+  @callback find_or_create_user_by_amazon_id(user :: %User{}) :: %User{}
+
+  @callback get_user_by_slug(slug :: String.t()) :: %User{} | nil
 end

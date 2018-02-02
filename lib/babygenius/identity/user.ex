@@ -35,7 +35,6 @@ defmodule Babygenius.Identity.User do
   end
 
   defp generate_slug(user_id) do
-    HashidGenerator.get_spec()
-    |> Hashids.encode([user_id])
+    HashidGenerator.encode([user_id])
   end
 end

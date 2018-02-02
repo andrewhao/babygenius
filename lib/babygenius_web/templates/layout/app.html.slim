@@ -1,7 +1,7 @@
 doctype 5
 html lang="en"
   head
-    title Babygenius
+    title Baby Genius
     meta charset="utf-8"
     meta http-equiv="X-UA-Compatible" content="IE=edge"
     meta name="viewport" content="width=device-width, initial-scale=1"
@@ -42,15 +42,10 @@ html lang="en"
           = error
 
       main role="main"
-        hr
-        #js-demo Uh oh, this text should have been replaced by babygenius.js.
-        hr
-        = render BabygeniusWeb.SharedView, "_bootstrap_modal_demo.html"
-        hr
         = render @view_module, @view_template, assigns
 
     script src="#{static_path(@conn, "/js/app.js")}"
 
     footer
       .container
-        p &copy; App Protype, All rights reserved.
+        p © #{DateTime.utc_now.year} Baby Genius, All rights reserved.
