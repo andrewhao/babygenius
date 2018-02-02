@@ -10,53 +10,58 @@ defmodule BabygeniusWeb.IntentHandler do
   @baby_life_client Application.get_env(:babygenius, :baby_life_client)
 
   @spec handle_intent(clause :: String.t(), request :: map(), now :: DateTime.t()) :: map()
-  def handle_intent(clause, request, now \\ Timex.now())
-
-  def handle_intent("GetLastDiaperChange", request, now) do
-    user = find_or_create_user_from_request(request)
-
-    with {:ok, _} <- @locality_client.process_timezone_for_user(user.id, request),
+  def handle_intent(clause, request, now \\ Timex.now()) do
+    with user <- find_or_create_user_from_request(request),
+         {:ok, _} <- @locality_client.process_timezone_for_user(user.id, request),
          user_local_timezone <- @locality_client.get_timezone_for_user(user.id) do
-      BabyLife.get_last_diaper_change(user)
-      |> last_diaper_change_text(user_local_timezone, now)
-      |> (&%{speak_text: &1, should_end_session: true}).()
+      handle_intent_with_user_and_timezone(clause, request, now, user, user_local_timezone)
     end
   end
 
-  def handle_intent("AddDiaperChange", request, now) do
-    user = find_or_create_user_from_request(request)
-
-    with {:ok, _} <- @locality_client.process_timezone_for_user(user.id, request),
-         user_local_timezone <- @locality_client.get_timezone_for_user(user.id) do
-      diaper_change_from_request(user, request, user_local_timezone, now)
-      |> add_diaper_change_speech(user_local_timezone, now)
-    end
+  def handle_intent_with_user_and_timezone(
+        "GetLastDiaperChange",
+        _request,
+        now,
+        user,
+        user_local_timezone
+      ) do
+    BabyLife.get_last_diaper_change(user)
+    |> last_diaper_change_text(user_local_timezone, now)
+    |> (&%{speak_text: &1, should_end_session: true}).()
   end
 
-  def handle_intent("AddFeeding", request, now) do
-    user = find_or_create_user_from_request(request)
-
-    with {:ok, _} <- @locality_client.process_timezone_for_user(user.id, request),
-         user_local_timezone <- @locality_client.get_timezone_for_user(user.id) do
-      request
-      |> extract_params_from_feeding_request(user)
-      |> @baby_life_client.create_feeding(now)
-      |> case do
-        {:ok, feeding} ->
-          feeding
-          |> feeding_created_speech(user_local_timezone, now)
-
-        {:error, _} ->
-          "Uh oh"
-      end
-      |> (&%{speak_text: &1, should_end_session: true}).()
-    end
+  def handle_intent_with_user_and_timezone(
+        "AddDiaperChange",
+        request,
+        now,
+        user,
+        user_local_timezone
+      ) do
+    diaper_change_from_request(user, request, user_local_timezone, now)
+    |> add_diaper_change_speech(user_local_timezone, now)
+    |> (&%{speak_text: &1, should_end_session: true}).()
   end
 
-  @spec feeding_created_speech(%BabyLife.Feeding{}, String.t(), DateTime.t()) :: %{
-          speak_text: String.t(),
-          should_end_session: boolean()
-        }
+  def handle_intent_with_user_and_timezone("AddFeeding", request, now, user, user_local_timezone) do
+    request
+    |> extract_params_from_feeding_request(user)
+    |> @baby_life_client.create_feeding(now)
+    |> case do
+      {:ok, feeding} ->
+        feeding
+        |> feeding_created_speech(user_local_timezone, now)
+
+      {:error, _} ->
+        "Uh oh"
+    end
+    |> (&%{speak_text: &1, should_end_session: true}).()
+  end
+
+  @spec feeding_created_speech(
+          feeding :: %BabyLife.Feeding{},
+          user_timezone :: String.t(),
+          now :: DateTime.t()
+        ) :: String.t()
   defp feeding_created_speech(feeding, user_timezone, now) do
     feeding_time =
       feeding
@@ -138,15 +143,13 @@ defmodule BabygeniusWeb.IntentHandler do
           diaper_change :: %BabyLife.DiaperChange{},
           user_timezone :: String.t(),
           now :: DateTime.t()
-        ) :: map()
+        ) :: String.t()
   defp add_diaper_change_speech(diaper_change, user_timezone, now) do
     time =
       diaper_change.occurred_at
       |> Timex.Timezone.convert(user_timezone)
       |> TimeUtils.formatted_time(now |> Timex.Timezone.convert(user_timezone))
 
-    speak_text = "A #{diaper_change.type} diaper change was logged #{time}"
-
-    %{speak_text: speak_text, should_end_session: true}
+    "A #{diaper_change.type} diaper change was logged #{time}"
   end
 end
