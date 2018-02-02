@@ -20,7 +20,8 @@ defmodule Babygenius.BabyLife.Behaviour do
                 volume: integer(),
                 unit: String.t(),
                 time: String.t() | nil,
-                date: String.t() | nil
+                date: String.t() | nil,
+                user_timezone: String.t()
               },
               now :: DateTime.t()
             ) :: %Feeding{}

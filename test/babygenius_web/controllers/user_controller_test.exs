@@ -4,10 +4,6 @@ defmodule BabygeniusWeb.UserControllerTest do
   alias Babygenius.Identity
   alias Babygenius.Identity.User
 
-  @create_attrs %{}
-  @update_attrs %{}
-  @invalid_attrs %{}
-
   def fixture(:user) do
     insert(:user) |> User.slugify()
   end

@@ -19,7 +19,8 @@ defmodule Babygenius.BabyLifeTest do
           unit: "MLs",
           volume: 60.0,
           time: "09:00",
-          date: "2017-01-01"
+          date: "2017-01-01",
+          user_timezone: "America/Los_Angeles"
         })
 
       feeding
@@ -33,13 +34,28 @@ defmodule Babygenius.BabyLifeTest do
                  unit: "MLs",
                  volume: 60.0,
                  time: "09:00",
-                 date: "2017-01-01"
+                 date: "2017-01-01",
+                 user_timezone: "America/Los_Angeles"
                })
 
       assert feeding.volume == 60.0
       assert feeding.feed_type == "some feed_type"
       assert feeding.unit == "MLs"
-      assert feeding.occurred_at == Timex.to_datetime({{2017, 1, 1}, {9, 0, 0}}, "Etc/UTC")
+    end
+
+    test "create_feeding/2 converts timezone to UTC timezone from user timezone", %{user: user} do
+      assert {:ok, %Feeding{} = feeding} =
+               BabyLife.create_feeding(%{
+                 user: user,
+                 feed_type: "some feed_type",
+                 unit: "MLs",
+                 volume: 60.0,
+                 time: "09:00",
+                 date: "2017-01-01",
+                 user_timezone: "America/Los_Angeles"
+               })
+
+      assert feeding.occurred_at == Timex.to_datetime({{2017, 1, 1}, {17, 0, 0}}, "Etc/UTC")
     end
 
     test "change_feeding/1 returns a feeding changeset", %{user: user} do

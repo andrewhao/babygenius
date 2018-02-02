@@ -51,7 +51,8 @@ defmodule Babygenius.BabyLife do
           volume: volume,
           unit: units,
           time: time,
-          date: date
+          date: date,
+          user_timezone: user_timezone
         } = attrs,
         now \\ Timex.now()
       ) do
@@ -62,7 +63,7 @@ defmodule Babygenius.BabyLife do
         Babygenius.TimeUtils.utc_time_from_local_spoken_time(
           time,
           date,
-          "Etc/UTC",
+          user_timezone,
           now
         )
       )
