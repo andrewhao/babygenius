@@ -92,15 +92,17 @@ defmodule Babygenius.BabyLifeTest do
     end
 
     test "returns list reverse-ordered by occurrence date", %{user: user} do
-      time1 = DateTime.utc_now() |> Timex.set(year: 2015)
-      time2 = time1 |> Timex.set(year: 2016)
-      time3 = time2 |> Timex.set(year: 2017)
-      dc = insert(:diaper_change, user: user, occurred_at: time3)
+      time1 = DateTime.utc_now() |> Timex.set(year: 2015, day: 15, hour: 10)
+      time2 = time1 |> Timex.set(hour: 11)
+      time3 = time2 |> Timex.set(hour: 12)
+      time4 = time3 |> Timex.set(year: 2017, day: 1, hour: 1)
       feeding = insert(:feeding, user: user, occurred_at: time2)
+      dc = insert(:diaper_change, user: user, occurred_at: time3)
       feeding2 = insert(:feeding, user: user, occurred_at: time1)
+      dc2 = insert(:diaper_change, user: user, occurred_at: time4)
 
       assert BabyLife.list_events_for_user(user)
-             |> Enum.map(&sort_by_attr/1) == [dc, feeding, feeding2] |> Enum.map(&sort_by_attr/1)
+             |> Enum.map(&sort_by_attr/1) == [dc2, dc, feeding, feeding2] |> Enum.map(&sort_by_attr/1)
     end
   end
 

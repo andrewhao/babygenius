@@ -89,7 +89,7 @@ defmodule Babygenius.BabyLife do
   end
 
   @impl true
-  def list_events_for_user(user) do
+  def list_events_for_user(user, user_timezone \\ "Etc/UTC") do
     diaper_changes =
       from(dc in DiaperChange, where: dc.user_id == ^user.id)
       |> Repo.all()
@@ -100,8 +100,7 @@ defmodule Babygenius.BabyLife do
 
     diaper_changes
     |> Enum.concat(feedings)
-    |> Enum.sort_by(& &1.occurred_at)
-    |> Enum.reverse()
-    |> Enum.map(&Event.create_from/1)
+    |> Enum.sort(&(DateTime.compare(&1.occurred_at, &2.occurred_at) in [:eq, :gt]))
+    |> Enum.map(&Event.create_from(&1, user_timezone))
   end
 end
