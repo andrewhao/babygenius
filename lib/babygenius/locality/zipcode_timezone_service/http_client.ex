@@ -8,6 +8,10 @@ defmodule Babygenius.Locality.ZipcodeTimezoneService.HttpClient do
   @http_client_headers [Accept: "application/json"]
 
   @spec fetch_zipcode(zip :: String.t()) :: %Zipcode{}
+  def fetch_zipcode(nil) do
+    raise "No zip code provided!"
+  end
+
   def fetch_zipcode(zip) do
     url = "#{@base_url}/api/zipcodes/#{zip}"
 

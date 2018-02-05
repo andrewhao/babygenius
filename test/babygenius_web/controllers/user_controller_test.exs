@@ -1,7 +1,6 @@
 defmodule BabygeniusWeb.UserControllerTest do
   use BabygeniusWeb.ConnCase
 
-  alias Babygenius.Identity
   alias Babygenius.Identity.User
 
   def fixture(:user) do

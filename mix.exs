@@ -35,7 +35,9 @@ defmodule Babygenius.Mixfile do
         :postgrex,
         :timex_ecto,
         :scout_apm,
-        :sentry
+        :sentry,
+        :event_bus,
+        :event_bus_logger
       ]
     ]
   end
@@ -74,7 +76,10 @@ defmodule Babygenius.Mixfile do
       {:exactor, "~> 2.2.4", warn_missing: false},
       {:sentry, "~> 6.0.4"},
       {:hashids, "~> 2.0"},
-      {:morphix, "~> 0.2.1"}
+      {:morphix, "~> 0.2.1"},
+      {:event_bus, "~> 1.0.0"},
+      {:event_bus_logger, "~> 0.1.0"},
+      {:uuid, "~> 1.1"}
     ]
   end
 

@@ -8,11 +8,11 @@ defmodule BabygeniusWeb.IntentHandler do
 
   @locality_client Application.get_env(:babygenius, :locality_client)
   @baby_life_client Application.get_env(:babygenius, :baby_life_client)
+  @identity_client Application.get_env(:babygenius, :identity_client)
 
   @spec handle_intent(clause :: String.t(), request :: map(), now :: DateTime.t()) :: map()
   def handle_intent(clause, request, now \\ Timex.now()) do
     with user <- find_or_create_user_from_request(request),
-         {:ok, _} <- @locality_client.trigger_zipcode_lookup(user.id, request),
          user_local_timezone <- @locality_client.get_timezone_for_user(user.id) do
       handle_intent_with_user_and_timezone(clause, request, now, user, user_local_timezone)
     end
@@ -25,7 +25,7 @@ defmodule BabygeniusWeb.IntentHandler do
         user,
         user_local_timezone
       ) do
-    BabyLife.get_last_diaper_change(user)
+    @baby_life_client.get_last_diaper_change(user)
     |> last_diaper_change_text(user_local_timezone, now)
     |> (&%{speak_text: &1, should_end_session: true}).()
   end
@@ -91,6 +91,27 @@ defmodule BabygeniusWeb.IntentHandler do
     %{user: user, feed_type: feed_type, volume: volume, unit: unit, time: time, date: date}
   end
 
+  @spec extract_device_params_from_request(request :: map()) :: %{
+          device_id: String.t(),
+          consent_token: String.t()
+        }
+  defp extract_device_params_from_request(request) do
+    %{
+      context: %{
+        System: %{
+          device: %{deviceId: device_id},
+          user: %{
+            permissions: %{
+              consentToken: consent_token
+            }
+          }
+        }
+      }
+    } = request
+
+    %{device_id: device_id, consent_token: consent_token}
+  end
+
   @spec last_diaper_change_text(
           diaper_change :: %BabyLife.DiaperChange{} | nil,
           user_timezone :: String.t(),
@@ -110,11 +131,13 @@ defmodule BabygeniusWeb.IntentHandler do
     "The last diaper change occurred #{change_time}"
   end
 
+  @spec find_or_create_user_from_request(request :: map()) :: %Identity.User{}
   defp find_or_create_user_from_request(request) do
     user_amazon_id = request.session.user.userId
 
-    %Identity.User{amazon_id: user_amazon_id}
-    |> Identity.find_or_create_user_by_amazon_id()
+    extract_device_params_from_request(request)
+    |> Map.merge(%{amazon_id: user_amazon_id})
+    |> @identity_client.find_or_create_user_by_amazon_id()
   end
 
   @spec diaper_change_from_request(

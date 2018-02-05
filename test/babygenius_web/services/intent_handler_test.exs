@@ -11,7 +11,6 @@ defmodule Babygenius.IntentHandlerTest do
   setup do
     Babygenius.Locality.Mock
     |> stub(:get_timezone_for_user, fn _user_id -> "America/Los_Angeles" end)
-    |> stub(:trigger_zipcode_lookup, fn _user_id, _request -> {:ok, "pid"} end)
 
     {:ok, pass: "pass"}
   end
@@ -19,6 +18,9 @@ defmodule Babygenius.IntentHandlerTest do
   describe "handle_intent/3 for GetLastDiaperChange" do
     setup do
       amazon_id = "amzn1.ask.account.SOME_ID"
+      consent_token = "ConsentTokenValue"
+      device_id = "DeviceIdValue"
+
       user = insert(:user, amazon_id: amazon_id)
 
       request_double = %{
@@ -37,11 +39,11 @@ defmodule Babygenius.IntentHandlerTest do
             apiAccessToken: "eyJ0e",
             application: %{applicationId: "amzn1.ask.skill.1175338a-99af-4093-80ab-3e9922f183f7"},
             device: %{
-              deviceId: "DeviceIdValue"
+              deviceId: device_id
             },
             user: %{
               permissions: %{
-                consentToken: "ConsentTokenValue"
+                consentToken: consent_token
               },
               userId: "UserIdValue"
             }
@@ -49,10 +51,22 @@ defmodule Babygenius.IntentHandlerTest do
         }
       }
 
+      Babygenius.Identity.Mock
+      |> expect(:find_or_create_user_by_amazon_id, fn %{
+                                                        amazon_id: ^amazon_id,
+                                                        consent_token: ^consent_token,
+                                                        device_id: ^device_id
+                                                      } ->
+        user
+      end)
+
       %{request: request_double, user: user}
     end
 
     test "informs about no diaper changes", %{request: request} do
+      Babygenius.BabyLife.Mock
+      |> expect(:get_last_diaper_change, fn _ -> nil end)
+
       response = IntentHandler.handle_intent("GetLastDiaperChange", request, Timex.now())
       assert response.speak_text == "You have not logged any diaper changes yet"
     end
@@ -65,7 +79,12 @@ defmodule Babygenius.IntentHandlerTest do
       # We query for this time at 7:00 PM UTC, or 11:00 AM PST
       today = Timex.now() |> Timex.set(month: 12, day: 15, hour: 10, minute: 12)
       today_now = Timex.now() |> Timex.set(month: 12, day: 15, hour: 19, minute: 0)
-      insert(:diaper_change, occurred_at: today, user: user)
+
+      Babygenius.BabyLife.Mock
+      |> expect(:get_last_diaper_change, fn _ ->
+        insert(:diaper_change, occurred_at: today, user: user)
+      end)
+
       response = IntentHandler.handle_intent("GetLastDiaperChange", request, today_now)
       assert response.speak_text == "The last diaper change occurred today at 2:12 AM"
     end
@@ -79,7 +98,12 @@ defmodule Babygenius.IntentHandlerTest do
       # We query for this time at 8:00 PM PST, or 4:00 AM UTC the next day
       today = Timex.now() |> Timex.set(month: 12, day: 1, hour: 10, minute: 12)
       today_now = Timex.now() |> Timex.set(month: 12, day: 2, hour: 4, minute: 0)
-      insert(:diaper_change, occurred_at: today, user: user)
+
+      Babygenius.BabyLife.Mock
+      |> expect(:get_last_diaper_change, fn _ ->
+        insert(:diaper_change, occurred_at: today, user: user)
+      end)
+
       response = IntentHandler.handle_intent("GetLastDiaperChange", request, today_now)
       assert response.speak_text == "The last diaper change occurred today at 2:12 AM"
     end
@@ -88,10 +112,13 @@ defmodule Babygenius.IntentHandlerTest do
       request: request,
       user: user
     } do
-      time_1 = Timex.now() |> Timex.set(year: 2020, month: 12, day: 25, hour: 12, minute: 0)
-      time_2 = time_1 |> Timex.shift(minutes: 30)
-      insert(:diaper_change, occurred_at: time_1, user: user)
-      insert(:diaper_change, occurred_at: time_2, user: user)
+      time_1 = Timex.now() |> Timex.set(year: 2020, month: 12, day: 25, hour: 12, minute: 30)
+
+      Babygenius.BabyLife.Mock
+      |> expect(:get_last_diaper_change, fn _ ->
+        insert(:diaper_change, occurred_at: time_1, user: user)
+      end)
+
       response = IntentHandler.handle_intent("GetLastDiaperChange", request, Timex.now())
       assert response.speak_text == "The last diaper change occurred December 25th at 4:30 AM"
     end
@@ -135,6 +162,20 @@ defmodule Babygenius.IntentHandlerTest do
         }
       }
 
+      Babygenius.Identity.Mock
+      |> expect(:find_or_create_user_by_amazon_id, fn %{
+                                                        amazon_id: amazon_id,
+                                                        consent_token: "ConsentTokenValue",
+                                                        device_id: "DeviceIdValue"
+                                                      } ->
+        insert(
+          :user,
+          amazon_id: amazon_id,
+          consent_token: "ConsentTokenValue",
+          device_id: "DeviceIdValue"
+        )
+      end)
+
       %{request: request_double, amazon_id: amazon_id}
     end
 
@@ -142,13 +183,6 @@ defmodule Babygenius.IntentHandlerTest do
       old_count = Repo.aggregate(from(dc in "diaper_changes"), :count, :id)
       IntentHandler.handle_intent("AddDiaperChange", request, Timex.now())
       new_count = Repo.aggregate(from(dc in "diaper_changes"), :count, :id)
-      assert new_count == old_count + 1
-    end
-
-    test "it creates a user if one does not exist", %{request: request} do
-      old_count = Repo.aggregate(from(dc in "users"), :count, :id)
-      IntentHandler.handle_intent("AddDiaperChange", request, Timex.now())
-      new_count = Repo.aggregate(from(dc in "users"), :count, :id)
       assert new_count == old_count + 1
     end
 
@@ -249,12 +283,20 @@ defmodule Babygenius.IntentHandlerTest do
       feeding = insert(:feeding, feed_type: "feeding", occurred_at: occurred_at)
       request = Babygenius.AddFeedingRequestFixture.as_map()
 
+      Babygenius.Identity.Mock
+      |> expect(:find_or_create_user_by_amazon_id, fn %{
+                                                        device_id: "amzn1.ask.device.AH6U6HY6S",
+                                                        consent_token: "eyJ0eXA"
+                                                      } ->
+        insert(:user)
+      end)
+
       %{request: request, amazon_id: amazon_id, feeding: feeding}
     end
 
     test "it adds a feeding", %{request: request, feeding: feeding} do
       Babygenius.BabyLife.Mock
-      |> expect(:create_feeding, fn %{user: user} = _attrs, _ ->
+      |> expect(:create_feeding, fn %{user: _user}, _ ->
         {:ok, feeding}
       end)
 
