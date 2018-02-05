@@ -11,7 +11,6 @@ defmodule Babygenius.IntentHandlerTest do
   setup do
     Babygenius.Locality.Mock
     |> stub(:get_timezone_for_user, fn _user_id -> "America/Los_Angeles" end)
-    |> stub(:trigger_zipcode_lookup, fn _user_id -> {:ok, "pid"} end)
 
     {:ok, pass: "pass"}
   end
@@ -65,6 +64,9 @@ defmodule Babygenius.IntentHandlerTest do
     end
 
     test "informs about no diaper changes", %{request: request} do
+      Babygenius.BabyLife.Mock
+      |> expect(:get_last_diaper_change, fn _ -> nil end)
+
       response = IntentHandler.handle_intent("GetLastDiaperChange", request, Timex.now())
       assert response.speak_text == "You have not logged any diaper changes yet"
     end
@@ -77,7 +79,12 @@ defmodule Babygenius.IntentHandlerTest do
       # We query for this time at 7:00 PM UTC, or 11:00 AM PST
       today = Timex.now() |> Timex.set(month: 12, day: 15, hour: 10, minute: 12)
       today_now = Timex.now() |> Timex.set(month: 12, day: 15, hour: 19, minute: 0)
-      insert(:diaper_change, occurred_at: today, user: user)
+
+      Babygenius.BabyLife.Mock
+      |> expect(:get_last_diaper_change, fn _ ->
+        insert(:diaper_change, occurred_at: today, user: user)
+      end)
+
       response = IntentHandler.handle_intent("GetLastDiaperChange", request, today_now)
       assert response.speak_text == "The last diaper change occurred today at 2:12 AM"
     end
@@ -91,7 +98,12 @@ defmodule Babygenius.IntentHandlerTest do
       # We query for this time at 8:00 PM PST, or 4:00 AM UTC the next day
       today = Timex.now() |> Timex.set(month: 12, day: 1, hour: 10, minute: 12)
       today_now = Timex.now() |> Timex.set(month: 12, day: 2, hour: 4, minute: 0)
-      insert(:diaper_change, occurred_at: today, user: user)
+
+      Babygenius.BabyLife.Mock
+      |> expect(:get_last_diaper_change, fn _ ->
+        insert(:diaper_change, occurred_at: today, user: user)
+      end)
+
       response = IntentHandler.handle_intent("GetLastDiaperChange", request, today_now)
       assert response.speak_text == "The last diaper change occurred today at 2:12 AM"
     end
@@ -100,10 +112,13 @@ defmodule Babygenius.IntentHandlerTest do
       request: request,
       user: user
     } do
-      time_1 = Timex.now() |> Timex.set(year: 2020, month: 12, day: 25, hour: 12, minute: 0)
-      time_2 = time_1 |> Timex.shift(minutes: 30)
-      insert(:diaper_change, occurred_at: time_1, user: user)
-      insert(:diaper_change, occurred_at: time_2, user: user)
+      time_1 = Timex.now() |> Timex.set(year: 2020, month: 12, day: 25, hour: 12, minute: 30)
+
+      Babygenius.BabyLife.Mock
+      |> expect(:get_last_diaper_change, fn _ ->
+        insert(:diaper_change, occurred_at: time_1, user: user)
+      end)
+
       response = IntentHandler.handle_intent("GetLastDiaperChange", request, Timex.now())
       assert response.speak_text == "The last diaper change occurred December 25th at 4:30 AM"
     end

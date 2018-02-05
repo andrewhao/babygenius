@@ -21,7 +21,7 @@ defmodule Babygenius.Locality.EventHandler do
   def handle_cast({:"identity.user.created", id}, state) do
     %{data: event_data} = EventBus.fetch_event({:"identity.user.created", id})
 
-    {:ok, _pid} = @locality_client.trigger_zipcode_lookup(event_data.user_id)
+    {:ok, _pid} = @locality_client.trigger_zipcode_lookup(event_data.user.id)
 
     # update the watcher!
     EventBus.mark_as_completed({__MODULE__, :"identity.user.created", id})

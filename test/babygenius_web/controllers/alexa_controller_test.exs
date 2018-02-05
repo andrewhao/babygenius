@@ -19,16 +19,20 @@ defmodule Babygenius.AlexaControllerTest do
     {:ok, pass: "pass"}
   end
 
+  setup :verify_on_exit!
+
   describe "GetLastDiaperChange intent_request/3" do
     setup do
       user = insert(:user, amazon_id: RequestFixtures.amazon_id())
 
-      # Insert a previous diaper change at 8:00AM today
-      insert(
-        :diaper_change,
-        user: user,
-        occurred_at: Timex.now() |> Timex.set(month: 12, day: 15, hour: 10, minute: 5)
-      )
+      Babygenius.BabyLife.Mock
+      |> expect(:get_last_diaper_change, fn _ ->
+        insert(
+          :diaper_change,
+          user: user,
+          occurred_at: Timex.now() |> Timex.set(month: 12, day: 15, hour: 10, minute: 5)
+        )
+      end)
 
       request =
         build_conn()

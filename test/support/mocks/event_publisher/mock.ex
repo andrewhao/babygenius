@@ -1,6 +1,6 @@
 defmodule Babygenius.EventPublisher.Mock do
   @behaviour Babygenius.EventPublisher.Behaviour
-  @verbose false
+  @verbose true
 
   @impl true
   def publish(event, payload) do

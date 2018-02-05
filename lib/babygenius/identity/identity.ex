@@ -42,9 +42,6 @@ defmodule Babygenius.Identity do
 
   @spec notify_user_created(user :: %User{}) :: no_return()
   def notify_user_created(user) do
-    @event_publisher.publish(:"identity.user.created", %{
-      user_id: user.id,
-      amazon_id: user.amazon_id
-    })
+    @event_publisher.publish(:"identity.user.created", %{user: user})
   end
 end

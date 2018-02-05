@@ -25,7 +25,7 @@ defmodule BabygeniusWeb.IntentHandler do
         user,
         user_local_timezone
       ) do
-    BabyLife.get_last_diaper_change(user)
+    @baby_life_client.get_last_diaper_change(user)
     |> last_diaper_change_text(user_local_timezone, now)
     |> (&%{speak_text: &1, should_end_session: true}).()
   end
