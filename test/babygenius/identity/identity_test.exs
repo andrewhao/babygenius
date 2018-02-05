@@ -22,12 +22,15 @@ defmodule Babygenius.IdentityTest do
 
   describe "find_or_create_user_by_amazon_id/1" do
     test "it creates a user" do
-      %User{amazon_id: "asdf"}
+      %User{amazon_id: "asdf", consent_token: "consent", device_id: "device"}
       |> Identity.find_or_create_user_by_amazon_id()
 
       new_identity = Repo.get_by(User, amazon_id: "asdf")
 
       assert new_identity.id
+      assert new_identity.amazon_id == "asdf"
+      assert new_identity.consent_token == "consent"
+      assert new_identity.device_id == "device"
     end
 
     test "it finds a user if exists" do

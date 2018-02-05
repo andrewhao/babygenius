@@ -9,14 +9,14 @@ defmodule Babygenius.Locality do
   alias Babygenius.Repo
   alias Babygenius.Locality.{FetchTimezone, Setting, FetchZipcodeFromDeviceApi}
 
-  @spec trigger_zipcode_lookup(user_id :: String.t(), request :: map()) :: {:ok, pid}
-  def trigger_zipcode_lookup(user_id, request) do
+  @impl true
+  def trigger_zipcode_lookup(user_id) do
     Task.Supervisor.start_child(Babygenius.TaskSupervisor, fn ->
-      FetchZipcodeFromDeviceApi.Live.perform(user_id, request)
+      FetchZipcodeFromDeviceApi.Live.perform(user_id)
     end)
   end
 
-  @spec get_timezone_for_user(user_id :: String.t()) :: String.t()
+  @impl true
   def get_timezone_for_user(user_id) do
     case Repo.get_by(Setting, user_id: to_string(user_id)) do
       nil -> "Etc/UTC"

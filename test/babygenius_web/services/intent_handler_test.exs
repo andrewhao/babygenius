@@ -54,9 +54,9 @@ defmodule Babygenius.IntentHandlerTest do
 
       Babygenius.Identity.Mock
       |> expect(:find_or_create_user_by_amazon_id, fn %{
-                                                        amazon_id: amazon_id,
-                                                        consent_token: consent_token,
-                                                        device_id: device_id
+                                                        amazon_id: ^amazon_id,
+                                                        consent_token: ^consent_token,
+                                                        device_id: ^device_id
                                                       } ->
         user
       end)

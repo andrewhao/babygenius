@@ -29,6 +29,11 @@ defmodule Babygenius.Identity do
     end
   end
 
+  @impl true
+  def get_user_by_id(user_id) do
+    Repo.get_by(User, id: user_id)
+  end
+
   def list_users do
     from(u in User)
     |> Repo.all()
