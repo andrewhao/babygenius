@@ -16,7 +16,7 @@ defmodule Babygenius do
       supervisor(Task.Supervisor, [[name: Babygenius.TaskSupervisor, restart: :transient]]),
       # supervisor(EventBus.Application, []),
       # Start your own worker by calling: Babygenius.Worker.start_link(arg1, arg2, arg3)
-      worker(Babygenius.Locality.EventHandler, []),
+      worker(Babygenius.Locality.EventHandler, [])
     ]
 
     # See http://elixir-lang.org/docs/stable/elixir/Supervisor.html
@@ -25,9 +25,13 @@ defmodule Babygenius do
 
     :ok = :error_logger.add_report_handler(Sentry.Logger)
 
-    :ok = EventBus.subscribe({Babygenius.Locality.EventHandler, [
-      :"identity.user.created"
-    ]})
+    :ok =
+      EventBus.subscribe(
+        {Babygenius.Locality.EventHandler,
+         [
+           :"identity.user.created"
+         ]}
+      )
 
     Supervisor.start_link(children, opts)
   end

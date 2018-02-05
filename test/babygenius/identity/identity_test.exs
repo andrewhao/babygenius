@@ -40,7 +40,10 @@ defmodule Babygenius.IdentityTest do
       assert result.id == existing_user.id
     end
 
+    @tag :skip
     test "it fires a identity.user.created event" do
+      %User{amazon_id: "asdfasdf"}
+      |> Identity.find_or_create_user_by_amazon_id()
     end
   end
 end

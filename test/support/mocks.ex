@@ -13,3 +13,4 @@ Mox.defmock(
 
 Mox.defmock(Babygenius.Locality.Mock, for: Babygenius.Locality.Behaviour)
 Mox.defmock(Babygenius.BabyLife.Mock, for: Babygenius.BabyLife.Behaviour)
+Mox.defmock(Babygenius.EventPublisher.DynamicMock, for: Babygenius.EventPublisher.Behaviour)
