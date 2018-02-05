@@ -11,7 +11,7 @@ defmodule Babygenius.IntentHandlerTest do
   setup do
     Babygenius.Locality.Mock
     |> stub(:get_timezone_for_user, fn _user_id -> "America/Los_Angeles" end)
-    |> stub(:trigger_zipcode_lookup, fn _user_id, _request -> {:ok, "pid"} end)
+    |> stub(:trigger_zipcode_lookup, fn _user_id -> {:ok, "pid"} end)
 
     {:ok, pass: "pass"}
   end

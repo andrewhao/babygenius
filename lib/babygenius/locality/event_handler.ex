@@ -3,21 +3,23 @@ defmodule Babygenius.Locality.EventHandler do
 
   use ExActor.GenServer
 
-  defstart(start_link, do: initial_state(0))
+  @impl true
+  def init(:ok) do
+    {:ok, []}
+  end
+
+  def start_link() do
+    GenServer.start_link(__MODULE__, :ok, name: __MODULE__)
+  end
 
   def process(event_shadow) do
-    Apex.ap("Process")
-    Apex.ap(event_shadow)
     GenServer.cast(__MODULE__, event_shadow)
     :ok
   end
 
   @impl true
   def handle_cast({:"identity.user.created", id}, state) do
-    Apex.ap("handle_cast")
-    Apex.ap(state)
     %{data: event_data} = EventBus.fetch_event({:"identity.user.created", id})
-    Apex.ap(event_data)
 
     {:ok, _pid} = @locality_client.trigger_zipcode_lookup(event_data.user_id)
 

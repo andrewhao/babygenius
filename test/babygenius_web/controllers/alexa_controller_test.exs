@@ -10,7 +10,7 @@ defmodule Babygenius.AlexaControllerTest do
 
   setup do
     Babygenius.Locality.Mock
-    |> stub(:trigger_zipcode_lookup, fn _, _ -> {:ok, "pid"} end)
+    |> stub(:trigger_zipcode_lookup, fn _ -> {:ok, "pid"} end)
     |> stub(:get_timezone_for_user, fn _ -> "America/Los_Angeles" end)
 
     Babygenius.Identity.Mock
