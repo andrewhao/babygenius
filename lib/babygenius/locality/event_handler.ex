@@ -18,8 +18,8 @@ defmodule Babygenius.Locality.EventHandler do
   end
 
   @impl true
-  def handle_cast({:"identity.user.created", id}, state) do
-    %{data: event_data} = EventBus.fetch_event({:"identity.user.created", id})
+  def handle_cast({:"identity.user.created" = event_name, id}, state) do
+    %{data: event_data} = EventBus.fetch_event({event_name, id})
 
     {:ok, _pid} = @locality_client.trigger_zipcode_lookup(event_data.user.id)
 
