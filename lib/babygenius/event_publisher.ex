@@ -3,7 +3,12 @@ defmodule Babygenius.EventPublisher.Behaviour do
 end
 
 defmodule Babygenius.EventPublisher do
+  @moduledoc """
+  A wrapper around the EventBus library that defines consistent event semantics
+  for inter-context communication.
+  """
   use EventBus.EventSource
+
   @behaviour Babygenius.EventPublisher.Behaviour
 
   @impl true

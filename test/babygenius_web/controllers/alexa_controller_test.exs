@@ -6,13 +6,15 @@ defmodule Babygenius.AlexaControllerTest do
   import Mox
 
   alias Babygenius.{RequestFixtures, AddFeedingRequestFixture}
-  alias Babygenius.Identity.{User}
   alias Babygenius.BabyLife.DiaperChange
 
   setup do
     Babygenius.Locality.Mock
     |> stub(:trigger_zipcode_lookup, fn _, _ -> {:ok, "pid"} end)
     |> stub(:get_timezone_for_user, fn _ -> "America/Los_Angeles" end)
+
+    Babygenius.Identity.Mock
+    |> stub(:find_or_create_user_by_amazon_id, fn _user -> insert(:user) end)
 
     {:ok, pass: "pass"}
   end
@@ -32,6 +34,9 @@ defmodule Babygenius.AlexaControllerTest do
         build_conn()
         |> put_req_header("accept", "application/json")
         |> put_req_header("content-type", "application/json")
+
+      Babygenius.Identity.Mock
+      |> stub(:find_or_create_user_by_amazon_id, fn _user -> user end)
 
       {:ok, request: request, json: RequestFixtures.get_last_diaper_change_json()}
     end
@@ -87,23 +92,6 @@ defmodule Babygenius.AlexaControllerTest do
 
       new_count = Repo.aggregate(from(dc in "users"), :count, :id)
       assert old_count == new_count - 1
-    end
-
-    test "it does not create a new user if one already exists", %{request: request, json: json} do
-      %User{
-        amazon_id:
-          "amzn1.ask.account.AFBXXFOBZCPX4X7Y42SGPWDWBBUTB56PB2NPD4WLYA7JWSWMDQTVMUI6UA2KZTVT3QJT5CRV7Q3GZVXZQ3VC56IFBG32V5VDMAENXGIZF7QOPI6MRHK3JJHAZS5MWGR3WELRUEIZVRLEPNV6HJLUMJBSOEPOTVER2KHLXZIY27EAAEP5QQSZSLAC6R2DFLR65WXN6E3S6RH4VFY"
-      }
-      |> Repo.insert!()
-
-      old_count = Repo.aggregate(from(dc in "users"), :count, :id)
-
-      request
-      |> post(alexa_path(build_conn(), :command), json)
-      |> json_response(200)
-
-      new_count = Repo.aggregate(from(dc in "users"), :count, :id)
-      assert old_count == new_count
     end
 
     test "logs a DiaperChange with the right type", %{request: request, json: json} do

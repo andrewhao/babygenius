@@ -12,8 +12,8 @@ defmodule Babygenius.UserEventsTest do
   end
 
   test "render page and list events", %{session: session, user: user} do
-    dc = insert(:diaper_change, user: user)
-    feeding = insert(:feeding, user: user)
+    insert(:diaper_change, user: user)
+    insert(:feeding, user: user)
 
     page_text =
       session
