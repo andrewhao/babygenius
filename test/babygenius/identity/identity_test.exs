@@ -19,4 +19,28 @@ defmodule Babygenius.IdentityTest do
       assert Identity.get_user_by_slug("badslug") == nil
     end
   end
+
+  describe "find_or_create_user_by_amazon_id/1" do
+    test "it creates a user" do
+      %User{amazon_id: "asdf"}
+      |> Identity.find_or_create_user_by_amazon_id()
+
+      new_identity = Repo.get_by(User, amazon_id: "asdf")
+
+      assert new_identity.id
+    end
+
+    test "it finds a user if exists" do
+      existing_user = insert(:user, amazon_id: "asdfasdf")
+
+      result =
+        %User{amazon_id: "asdfasdf"}
+        |> Identity.find_or_create_user_by_amazon_id()
+
+      assert result.id == existing_user.id
+    end
+
+    test "it fires a identity.user.created event" do
+    end
+  end
 end

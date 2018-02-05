@@ -13,9 +13,10 @@ defmodule Babygenius do
       # Start the endpoint when the application starts
       supervisor(BabygeniusWeb.Endpoint, []),
       # Supervise the FetchTimezone job
-      supervisor(Task.Supervisor, [[name: Babygenius.TaskSupervisor, restart: :transient]])
+      supervisor(Task.Supervisor, [[name: Babygenius.TaskSupervisor, restart: :transient]]),
+      # supervisor(EventBus.Application, []),
       # Start your own worker by calling: Babygenius.Worker.start_link(arg1, arg2, arg3)
-      # worker(Babygenius.Worker, [arg1, arg2, arg3]),
+      worker(Babygenius.Locality.EventHandler, []),
     ]
 
     # See http://elixir-lang.org/docs/stable/elixir/Supervisor.html
@@ -23,6 +24,10 @@ defmodule Babygenius do
     opts = [strategy: :one_for_one, name: Babygenius.Supervisor]
 
     :ok = :error_logger.add_report_handler(Sentry.Logger)
+
+    :ok = EventBus.subscribe({Babygenius.Locality.EventHandler, [
+      :"identity.user.created"
+    ]})
 
     Supervisor.start_link(children, opts)
   end

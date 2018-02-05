@@ -44,10 +44,14 @@ config :babygenius, :baby_life_client, Babygenius.BabyLife
 
 config :babygenius, :hashids_salt, System.get_env("HASHIDS_SALT")
 
+config :babygenius, :event_publisher, Babygenius.EventPublisher
+
 import_config "scout_apm.exs"
 
 config :babygenius, Babygenius.Repo,
   loggers: [{Ecto.LogEntry, :log, []}, {ScoutApm.Instruments.EctoLogger, :log, []}]
+
+import_config "event_bus.exs"
 
 # Import environment specific config. This must remain at the bottom
 # of this file so it overrides the configuration defined above.
