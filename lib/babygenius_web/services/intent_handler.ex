@@ -12,7 +12,6 @@ defmodule BabygeniusWeb.IntentHandler do
   @spec handle_intent(clause :: String.t(), request :: map(), now :: DateTime.t()) :: map()
   def handle_intent(clause, request, now \\ Timex.now()) do
     with user <- find_or_create_user_from_request(request),
-         {:ok, _} <- @locality_client.trigger_zipcode_lookup(user.id, request),
          user_local_timezone <- @locality_client.get_timezone_for_user(user.id) do
       handle_intent_with_user_and_timezone(clause, request, now, user, user_local_timezone)
     end
