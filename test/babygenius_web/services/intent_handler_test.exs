@@ -11,7 +11,7 @@ defmodule Babygenius.IntentHandlerTest do
   setup do
     Babygenius.Locality.Mock
     |> stub(:get_timezone_for_user, fn _user_id -> "America/Los_Angeles" end)
-    |> stub(:process_timezone_for_user, fn _user_id, _request -> {:ok, "pid"} end)
+    |> stub(:trigger_zipcode_lookup, fn _user_id, _request -> {:ok, "pid"} end)
 
     {:ok, pass: "pass"}
   end
@@ -242,8 +242,10 @@ defmodule Babygenius.IntentHandlerTest do
     setup do
       amazon_id = "amzn1.ask.account.SOME_ID"
 
-      occurred_at = Timex.now()
-                    |> Timex.set(year: 2017, month: 12, day: 25, hour: 12, minute: 0)
+      occurred_at =
+        Timex.now()
+        |> Timex.set(year: 2017, month: 12, day: 25, hour: 12, minute: 0)
+
       feeding = insert(:feeding, feed_type: "feeding", occurred_at: occurred_at)
       request = Babygenius.AddFeedingRequestFixture.as_map()
 
@@ -252,7 +254,9 @@ defmodule Babygenius.IntentHandlerTest do
 
     test "it adds a feeding", %{request: request, feeding: feeding} do
       Babygenius.BabyLife.Mock
-      |> expect(:create_feeding, fn _, _ -> {:ok, feeding} end)
+      |> expect(:create_feeding, fn %{user: user} = _attrs, _ ->
+        {:ok, feeding}
+      end)
 
       IntentHandler.handle_intent("AddFeeding", request, DateTime.utc_now())
     end

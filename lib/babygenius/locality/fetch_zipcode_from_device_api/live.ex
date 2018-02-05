@@ -10,7 +10,7 @@ defmodule Babygenius.Locality.FetchZipcodeFromDeviceApi.Live do
   def perform(
         user_id,
         request,
-        zipcode_fn \\ &Locality.Client.fetch_timezone_by_zipcode_for_setting/2
+        zipcode_fn \\ &Locality.fetch_timezone_by_zipcode_for_setting/2
       ) do
     %{
       context: %{
