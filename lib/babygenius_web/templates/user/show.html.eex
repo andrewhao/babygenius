@@ -15,11 +15,11 @@
   </tr>
   <tr>
     <th>timezone_identifier</th>
-    <td><%= @user.timezone_identifier %></td>
+    <td><%= @setting.timezone_identifier %></td>
   </tr>
   <tr>
     <th>zip_code</th>
-    <td><%= @user.zip_code %></td>
+    <td><%= @setting.zip_code %></td>
   </tr>
   <tr>
     <th>device_id</th>
