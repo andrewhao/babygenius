@@ -137,6 +137,7 @@ defmodule BabygeniusWeb.IntentHandler do
 
     extract_device_params_from_request(request)
     |> Map.merge(%{amazon_id: user_amazon_id})
+    |> (&struct(Identity.User, &1)).()
     |> @identity_client.find_or_create_user_by_amazon_id()
   end
 

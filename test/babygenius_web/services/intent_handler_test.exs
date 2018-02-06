@@ -5,6 +5,7 @@ defmodule Babygenius.IntentHandlerTest do
   import Mox
   alias BabygeniusWeb.{IntentHandler}
   alias Babygenius.BabyLife.DiaperChange
+  alias Babygenius.Identity.User
 
   setup :verify_on_exit!
 
@@ -52,7 +53,7 @@ defmodule Babygenius.IntentHandlerTest do
       }
 
       Babygenius.Identity.Mock
-      |> expect(:find_or_create_user_by_amazon_id, fn %{
+      |> expect(:find_or_create_user_by_amazon_id, fn %User{
                                                         amazon_id: ^amazon_id,
                                                         consent_token: ^consent_token,
                                                         device_id: ^device_id
@@ -163,7 +164,7 @@ defmodule Babygenius.IntentHandlerTest do
       }
 
       Babygenius.Identity.Mock
-      |> expect(:find_or_create_user_by_amazon_id, fn %{
+      |> expect(:find_or_create_user_by_amazon_id, fn %User{
                                                         amazon_id: amazon_id,
                                                         consent_token: "ConsentTokenValue",
                                                         device_id: "DeviceIdValue"
@@ -284,7 +285,7 @@ defmodule Babygenius.IntentHandlerTest do
       request = Babygenius.AddFeedingRequestFixture.as_map()
 
       Babygenius.Identity.Mock
-      |> expect(:find_or_create_user_by_amazon_id, fn %{
+      |> expect(:find_or_create_user_by_amazon_id, fn %User{
                                                         device_id: "amzn1.ask.device.AH6U6HY6S",
                                                         consent_token: "eyJ0eXA"
                                                       } ->
