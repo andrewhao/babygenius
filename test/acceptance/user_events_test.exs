@@ -1,7 +1,10 @@
 defmodule Babygenius.UserEventsTest do
   use Babygenius.AcceptanceCase, async: true
+  import Mox
 
   alias Babygenius.Identity.User
+
+  setup :verify_on_exit!
 
   setup do
     user =
@@ -11,7 +14,11 @@ defmodule Babygenius.UserEventsTest do
     %{user: user}
   end
 
+  @tag :skip
   test "render page and list events", %{session: session, user: user} do
+    Babygenius.Locality.Mock
+    |> expect(:get_setting_for_user, fn _ -> nil end)
+
     insert(:diaper_change, user: user)
     insert(:feeding, user: user)
 
