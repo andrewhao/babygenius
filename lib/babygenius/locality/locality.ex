@@ -24,6 +24,11 @@ defmodule Babygenius.Locality do
     end
   end
 
+  @impl true
+  def get_setting_for_user(user_id) do
+    Repo.get_by(Setting, user_id: to_string(user_id))
+  end
+
   @spec fetch_timezone_by_zipcode_for_setting(String.t(), %Setting{}) :: {:ok, pid}
   def fetch_timezone_by_zipcode_for_setting(zipcode, setting) do
     Task.Supervisor.start_child(Babygenius.TaskSupervisor, fn ->
