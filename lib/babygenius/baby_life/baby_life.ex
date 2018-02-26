@@ -47,9 +47,6 @@ defmodule Babygenius.BabyLife do
   def create_feeding(
         %{
           user: user,
-          feed_type: feed_type,
-          volume: volume,
-          unit: units,
           time: time,
           date: date,
           user_timezone: user_timezone
