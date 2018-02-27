@@ -7,9 +7,9 @@ defmodule Babygenius.Locality.ZipcodeTimezoneService.HttpClient do
   @http_client_options [timeout: 50000, recv_timeout: 50000]
   @http_client_headers [Accept: "application/json"]
 
-  @spec fetch_zipcode(zip :: String.t()) :: %Zipcode{}
+  @spec fetch_zipcode(zip :: String.t()) :: {:error, String.t()} | %Zipcode{}
   def fetch_zipcode(nil) do
-    raise "No zip code provided!"
+    {:error, "No zip code provided!"}
   end
 
   def fetch_zipcode(zip) do

@@ -1,20 +1,74 @@
+defprotocol BabygeniusWeb.IntentHandler.HasDependencies do
+  @type t :: %{get: fun()}
+
+  @spec get(any()) :: %{
+          create_diaper_change: fun(),
+          get_timezone_for_user: fun(),
+          find_or_create_user_by_amazon_id: fun(),
+          create_feeding: fun(),
+          get_last_diaper_change: fun()
+        }
+  def get(t)
+end
+
+defmodule BabygeniusWeb.IntentHandler.LiveDependencies do
+  defstruct []
+end
+
+defimpl BabygeniusWeb.IntentHandler.HasDependencies,
+  for: BabygeniusWeb.IntentHandler.LiveDependencies do
+  @locality_client Application.get_env(:babygenius, :locality_client)
+  @identity_client Application.get_env(:babygenius, :identity_client)
+  @baby_life_client Application.get_env(:babygenius, :baby_life_client)
+
+  def get(_t) do
+    %{
+      create_diaper_change: &@baby_life_client.create_diaper_change/6,
+      get_timezone_for_user: &@locality_client.get_timezone_for_user/1,
+      find_or_create_user_by_amazon_id: &@identity_client.find_or_create_user_by_amazon_id/1,
+      create_feeding: &@baby_life_client.create_feeding/2,
+      get_last_diaper_change: &@baby_life_client.get_last_diaper_change/1
+    }
+  end
+end
+
 defmodule BabygeniusWeb.IntentHandler do
   @moduledoc """
     Service module to handle incoming intents from Alexa Skills Kit
   """
   use Timex
+  alias BabygeniusWeb.IntentHandler.{LiveDependencies, HasDependencies}
   alias Babygenius.{BabyLife, Identity, TimeUtils}
   use BabygeniusWeb, :model
 
-  @locality_client Application.get_env(:babygenius, :locality_client)
-  @baby_life_client Application.get_env(:babygenius, :baby_life_client)
-  @identity_client Application.get_env(:babygenius, :identity_client)
+  @spec handle_intent(
+          clause :: String.t(),
+          request :: map(),
+          now :: DateTime.t(),
+          dependencies :: HasDependencies.t()
+        ) :: map()
+  def handle_intent(
+        clause,
+        request,
+        now \\ Timex.now(),
+        dependencies \\ %LiveDependencies{}
+      ) do
+    deps = HasDependencies.get(dependencies)
 
-  @spec handle_intent(clause :: String.t(), request :: map(), now :: DateTime.t()) :: map()
-  def handle_intent(clause, request, now \\ Timex.now()) do
-    with user <- find_or_create_user_from_request(request),
-         user_local_timezone <- @locality_client.get_timezone_for_user(user.id) do
-      handle_intent_with_user_and_timezone(clause, request, now, user, user_local_timezone)
+    with user <-
+           find_or_create_user_from_request(
+             request,
+             deps
+           ),
+         user_local_timezone <- deps.get_timezone_for_user.(user.id) do
+      handle_intent_with_user_and_timezone(
+        clause,
+        request,
+        now,
+        user,
+        user_local_timezone,
+        deps
+      )
     end
   end
 
@@ -23,9 +77,10 @@ defmodule BabygeniusWeb.IntentHandler do
         _request,
         now,
         user,
-        user_local_timezone
+        user_local_timezone,
+        dependencies
       ) do
-    @baby_life_client.get_last_diaper_change(user)
+    dependencies.get_last_diaper_change.(user)
     |> last_diaper_change_text(user_local_timezone, now)
     |> (&%{speak_text: &1, should_end_session: true}).()
   end
@@ -35,17 +90,31 @@ defmodule BabygeniusWeb.IntentHandler do
         request,
         now,
         user,
-        user_local_timezone
+        user_local_timezone,
+        dependencies
       ) do
-    diaper_change_from_request(user, request, user_local_timezone, now)
+    diaper_change_from_request(
+      user,
+      request,
+      user_local_timezone,
+      now,
+      dependencies.create_diaper_change
+    )
     |> add_diaper_change_speech(user_local_timezone, now)
     |> (&%{speak_text: &1, should_end_session: true}).()
   end
 
-  def handle_intent_with_user_and_timezone("AddFeeding", request, now, user, user_local_timezone) do
+  def handle_intent_with_user_and_timezone(
+        "AddFeeding",
+        request,
+        now,
+        user,
+        user_local_timezone,
+        dependencies
+      ) do
     request
     |> extract_params_from_feeding_request(user)
-    |> @baby_life_client.create_feeding(now)
+    |> dependencies.create_feeding.(now)
     |> case do
       {:ok, feeding} ->
         feeding
@@ -131,29 +200,39 @@ defmodule BabygeniusWeb.IntentHandler do
     "The last diaper change occurred #{change_time}"
   end
 
-  @spec find_or_create_user_from_request(request :: map()) :: %Identity.User{}
-  defp find_or_create_user_from_request(request) do
+  @spec find_or_create_user_from_request(
+          request :: map(),
+          dependencies :: BabygeniusWeb.IntentHandler.HasDependencies.t()
+        ) :: %Identity.User{}
+  defp find_or_create_user_from_request(request, dependencies) do
     user_amazon_id = request.session.user.userId
 
     extract_device_params_from_request(request)
     |> Map.merge(%{amazon_id: user_amazon_id})
     |> (&struct(Identity.User, &1)).()
-    |> @identity_client.find_or_create_user_by_amazon_id()
+    |> dependencies.find_or_create_user_by_amazon_id.()
   end
 
   @spec diaper_change_from_request(
           user :: %Identity.User{},
           request :: map(),
           user_timezone :: String.t(),
-          now :: DateTime.t()
+          now :: DateTime.t(),
+          create_diaper_change :: fun()
         ) :: %BabyLife.DiaperChange{}
-  defp diaper_change_from_request(user, request, user_timezone, now) do
+  defp diaper_change_from_request(
+         user,
+         request,
+         user_timezone,
+         now,
+         create_diaper_change
+       ) do
     slots = request.request.intent.slots
     diaper_type = get_in(slots, ["diaperType", "value"])
     fetched_diaper_change_date = get_in(slots, ["diaperChangeDate", "value"])
     fetched_diaper_change_time = get_in(slots, ["diaperChangeTime", "value"])
 
-    BabyLife.create_diaper_change(
+    create_diaper_change.(
       user,
       diaper_type,
       fetched_diaper_change_time,

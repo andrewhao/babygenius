@@ -1,7 +1,7 @@
 defmodule BabygeniusWeb.UserController do
   use BabygeniusWeb, :controller
 
-  alias Babygenius.{Identity, BabyLife, Locality}
+  alias Babygenius.{Identity, BabyLife}
 
   @locality_client Application.get_env(:babygenius, :locality_client)
 
@@ -13,11 +13,13 @@ defmodule BabygeniusWeb.UserController do
   def show(conn, %{"id" => id}) do
     user = Identity.get_user_by_slug(id)
     events = BabyLife.list_events_for_user(user)
-    setting = @locality_client.get_setting_for_user(to_string(user.id))
-              |> case do
-                nil -> %{zip_code: nil, timezone_identifier: nil}
-                setting -> setting
-              end
+
+    setting =
+      @locality_client.get_setting_for_user(to_string(user.id))
+      |> case do
+        nil -> %{zip_code: nil, timezone_identifier: nil}
+        setting -> setting
+      end
 
     render(conn, "show.html", user: user, events: events, setting: setting)
   end
