@@ -23,7 +23,7 @@ defimpl BabygeniusWeb.IntentHandler.HasDependencies,
 
   def get(_t) do
     %{
-      create_diaper_change: &Babygenius.BabyLife.create_diaper_change/6,
+      create_diaper_change: &@baby_life_client.create_diaper_change/6,
       get_timezone_for_user: &@locality_client.get_timezone_for_user/1,
       find_or_create_user_by_amazon_id: &@identity_client.find_or_create_user_by_amazon_id/1,
       create_feeding: &@baby_life_client.create_feeding/2,

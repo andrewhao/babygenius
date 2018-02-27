@@ -4,7 +4,6 @@ defmodule Babygenius.IntentHandlerTest do
   import Babygenius.Factory
   import Mox
   alias BabygeniusWeb.{IntentHandler}
-  alias Babygenius.BabyLife.DiaperChange
   alias Babygenius.Identity.User
 
   setup :verify_on_exit!
@@ -180,96 +179,13 @@ defmodule Babygenius.IntentHandlerTest do
       %{request: request_double, amazon_id: amazon_id}
     end
 
-    test "it inserts a DiaperChange", %{request: request} do
-      old_count = Repo.aggregate(from(dc in "diaper_changes"), :count, :id)
+    test "it creates a DiaperChange via the BabyLife context", %{request: request} do
+      Babygenius.BabyLife.Mock
+      |> expect(:create_diaper_change, fn _, _, _, _, _, _ ->
+        insert(:diaper_change)
+      end)
+
       IntentHandler.handle_intent("AddDiaperChange", request, Timex.now())
-      new_count = Repo.aggregate(from(dc in "diaper_changes"), :count, :id)
-      assert new_count == old_count + 1
-    end
-
-    test "it uses the current datetime if one is not given", %{request: request} do
-      current_time = Timex.now()
-      IntentHandler.handle_intent("AddDiaperChange", request, current_time)
-      diaper_change = DiaperChange |> last |> Repo.one()
-
-      assert diaper_change.occurred_at |> Map.put(:microsecond, 0) ==
-               current_time |> Map.put(:microsecond, 0)
-    end
-
-    test "it uses provided date if one is given and shifts the time zone from local timezone to UTC",
-         %{
-           request: request
-         } do
-      # User wants to log diaper change at 19:00 PST, 2017-09-10
-      # This converts to 02:00 UTC, 2017-09-11
-      request =
-        put_in(request, [:request, :intent, :slots, "diaperChangeTime"], %{
-          "value" => "19:00"
-        })
-        |> put_in([:request, :intent, :slots, "diaperChangeDate"], %{"value" => "2017-09-10"})
-
-      current_time = Timex.now()
-      response = IntentHandler.handle_intent("AddDiaperChange", request, current_time)
-      assert response.speak_text == "A wet diaper change was logged September 10th at 7:00 PM"
-
-      saved_occurred_at =
-        last(DiaperChange)
-        |> Repo.one()
-        |> Map.get(:occurred_at)
-
-      # assert we persisted at UTC
-      assert saved_occurred_at.hour == 2
-      assert saved_occurred_at.day == 11
-    end
-
-    test "it uses the provided time if one is given, persisting in UTC (converting from local time)",
-         %{request: request} do
-      # The user specifies the diaper change to be logged for 9:00AM PST
-      # Which converts to 5:00PM UTC
-      request =
-        put_in(request, [:request, :intent, :slots, "diaperChangeTime"], %{
-          "value" => "09:00"
-        })
-
-      # Currently, it's 8:00PM UTC, or 12:00PM PST
-      current_time = Timex.now() |> Timex.set(hour: 20, minute: 0, second: 0)
-
-      response = IntentHandler.handle_intent("AddDiaperChange", request, current_time)
-
-      saved_occurred_at =
-        last(DiaperChange)
-        |> Repo.one()
-        |> Map.get(:occurred_at)
-
-      # assert we persisted at UTC
-      assert saved_occurred_at.hour == 17
-
-      assert response.speak_text == "A wet diaper change was logged today at 9:00 AM"
-    end
-
-    test "it uses the provided time if one is given, persisting in UTC (converting from local time) even if UTC is into next day",
-         %{request: request} do
-      # The user specifies the diaper change to be logged for 9:00AM PST
-      # Which converts to 5:00PM UTC
-      request =
-        put_in(request, [:request, :intent, :slots, "diaperChangeTime"], %{
-          "value" => "09:00"
-        })
-
-      # Currently, it's 4:00AM UTC, or 8:00PM PST the prior day
-      current_time = Timex.now() |> Timex.set(hour: 4, minute: 0, second: 0)
-
-      response = IntentHandler.handle_intent("AddDiaperChange", request, current_time)
-
-      saved_occurred_at =
-        last(DiaperChange)
-        |> Repo.one()
-        |> Map.get(:occurred_at)
-
-      # assert we persisted at UTC
-      assert saved_occurred_at.hour == 17
-
-      assert response.speak_text == "A wet diaper change was logged today at 9:00 AM"
     end
   end
 

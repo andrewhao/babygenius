@@ -16,6 +16,9 @@ defmodule Babygenius.AlexaControllerTest do
     Babygenius.Identity.Mock
     |> stub(:find_or_create_user_by_amazon_id, fn _user -> insert(:user) end)
 
+    Babygenius.BabyLife.Mock
+    |> stub(:create_diaper_change, fn _, _, _, _, _, _ -> insert(:diaper_change, occurred_at: Timex.now() |> Timex.set(month: 12, day: 25, hour: 16, minute: 35)) end)
+
     {:ok, pass: "pass"}
   end
 
@@ -87,17 +90,6 @@ defmodule Babygenius.AlexaControllerTest do
       assert old_count == new_count - 1
     end
 
-    test "it creates a new user if one does not already exist", %{request: request, json: json} do
-      old_count = Repo.aggregate(from(dc in "users"), :count, :id)
-
-      request
-      |> post(alexa_path(build_conn(), :command), json)
-      |> json_response(200)
-
-      new_count = Repo.aggregate(from(dc in "users"), :count, :id)
-      assert old_count == new_count - 1
-    end
-
     test "logs a DiaperChange with the right type", %{request: request, json: json} do
       _response =
         request
@@ -120,7 +112,7 @@ defmodule Babygenius.AlexaControllerTest do
         |> json_response(200)
 
       assert get_in(response, ["response", "outputSpeech", "text"]) ==
-               "A wet diaper change was logged September 8th at 3:00 AM"
+               "A wet diaper change was logged December 25th at 8:35 AM"
     end
   end
 
