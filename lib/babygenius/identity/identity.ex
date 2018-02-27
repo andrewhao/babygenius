@@ -12,8 +12,8 @@ defmodule Babygenius.Identity do
   @event_publisher Application.get_env(:babygenius, :event_publisher)
 
   @impl true
-  def find_or_create_user_by_amazon_id(user) do
-    query = from(u in User, where: u.amazon_id == ^user.amazon_id)
+  def find_or_create_user_by_amazon_id(%{amazon_id: amazon_id} = user) do
+    query = from(u in User, where: u.amazon_id == ^amazon_id)
     user = Babygenius.Repo.one(query) || Babygenius.Repo.insert!(user)
     notify_user_created(user)
     user
